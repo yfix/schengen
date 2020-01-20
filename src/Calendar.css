@@ -3,7 +3,7 @@
   user-select: none;
 }
 
-.CalendarList {
+.Calendar-List {
   position: relative;
   width: 350px;
   border-left: 1px solid #333;
