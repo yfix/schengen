@@ -17,6 +17,8 @@
   text-align: center;
   padding-top: 16px;
   box-sizing: border-box;
+  line-height: 1;
+  position: relative;
 }
 
 .Day-Selected {
@@ -37,6 +39,12 @@
 
 .Day-Today {
   color: red;
+}
+
+.DaysLeft {
+  display: block;
+  position: absolute;
+  width: 85%;
 }
 
 .Month {

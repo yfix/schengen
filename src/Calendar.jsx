@@ -35,11 +35,6 @@ const Calendar = ({ days, toggleSelection }) => (
         </>
       ))}
     </div>
-    <div style={{ position: 'absolute', bottom: 0, textAlign: 'center', width: '350px', right: 0, background: '#fff', padding: '10px', boxSizing: 'border-box' }}>
-      <div>Next trip can be started</div>
-      <div>in 3 days for 8 days</div>
-      <div>in a row</div>
-    </div>
   </div>
 );
 

@@ -28,6 +28,9 @@ const collectDays = () => {
 
   days[days.length - 1].today = true;
 
+  for (let i = 1; i <= 180; i++)
+    days.push({ date: date(now.getFullYear(), now.getMonth(), now.getDate() + i), disabled: true });
+
   do {
     const firstDay = days[0].date;
     const prevDay = date(firstDay.year, firstDay.month, firstDay.date - 1);
