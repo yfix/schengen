@@ -21,6 +21,10 @@
   position: relative;
 }
 
+.Day:not(.Day-Disabled):hover {
+  outline: auto;
+}
+
 .Day-Selected {
   background: pink;
 }

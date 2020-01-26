@@ -15,7 +15,6 @@ const repeat = (times, fn) => {
 };
 
 /**
- * @typedef {{ date: FlatDate, today?: boolean, disabled?: boolean, selected?: boolean }} Day
  * @param {object} props
  * @param {Array<Day>} props.days
  * @param {(day: Day) => void} props.toggleSelection

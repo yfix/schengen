@@ -5,12 +5,13 @@ const storage = createStorage('schengen');
 
 /**
  * @param {string} key
- * @param {function | any} defaultValue
+ * @param {function | any} [defaultValue]
  */
 const useStorage = (key, defaultValue) => {
   const [value, set] = useState(storage.get(key, defaultValue));
   
   const update = newValue => {
+    console.log('update', newValue);
     storage.set(key, newValue);
     set(newValue);
   };

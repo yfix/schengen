@@ -1,17 +1,25 @@
 import React from 'react';
 import './App.css';
-import useStorage from './useStorage';
 import Calendar from './Calendar';
 import Summary from './Summary';
-import collectDays from './collectDays';
+import compareDates from './compareDates';
+import useSelectedDates from './useSelectedDates';
+import useSchengenDays from './useSchengenDays';
 
 const App = () => {
-  const [days, updateDays] = useStorage('days', collectDays);
+  const [selectedDates, updateSelectedDays] = useSelectedDates();
+  const days = useSchengenDays(selectedDates);
 
+  /**
+   * @param {Day} day
+   */
   const toggleSelection = day => {
-    if (day.disabled)
-      return;
-    updateDays(days.map(d => d === day ? { ...day, selected: !day.selected } : d));
+    if (day.disabled) return;
+    const selectedDate = selectedDates.find(date => !compareDates(date, day.date));
+    if (selectedDate)
+      updateSelectedDays(selectedDates.filter(date => date !== selectedDate));
+    else
+      updateSelectedDays(selectedDates.concat(day.date));
   };
 
   return (

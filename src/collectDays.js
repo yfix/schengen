@@ -1,5 +1,4 @@
 /**
- * @typedef {{ year: number, month: number, date: number, day: number, toString(): string }} FlatDate
  * @param {number} year
  * @param {number} month
  * @param {number} date
