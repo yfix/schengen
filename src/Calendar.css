@@ -45,7 +45,7 @@
   color: red;
 }
 
-.DaysLeft {
+.Day_Available {
   display: block;
   position: absolute;
   width: 85%;

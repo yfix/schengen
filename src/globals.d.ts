@@ -14,6 +14,7 @@ type Day = {
   today?: boolean;
   disabled?: boolean;
   selected?: boolean;
+  available?: number;
 };
 
 type ComparisonResult = -1 | 0 | 1;

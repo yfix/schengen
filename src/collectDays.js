@@ -1,34 +1,18 @@
-/**
- * @param {number} year
- * @param {number} month
- * @param {number} date
- * @returns {FlatDate}
- */
-const date = (year, month, date) => {
-  const d = new Date(year, month, date);
-  return {
-    year: d.getFullYear(),
-    month: d.getMonth(),
-    date: d.getDate(),
-    day: d.getDay(),
-    toString() {
-      return `${this.year}-${this.month}-${this.date}`;
-    }
-  };
-};
+import date from './date';
+import getToday from './today';
 
 const collectDays = () => {
-  const now = new Date();
+  const today = getToday();
   /** @type {Array<{ date: FlatDate, today?: boolean, disabled?: boolean, selected?: boolean }>} */
   const days = [];
 
   for (let i = 180; i--;)
-    days.push({ date: date(now.getFullYear(), now.getMonth(), now.getDate() - i) });
+    days.push({ date: date(today.year, today.month, today.date - i) });
 
   days[days.length - 1].today = true;
 
   for (let i = 1; i <= 180; i++)
-    days.push({ date: date(now.getFullYear(), now.getMonth(), now.getDate() + i), disabled: true });
+    days.push({ date: date(today.year, today.month, today.date + i), disabled: true });
 
   do {
     const firstDay = days[0].date;
