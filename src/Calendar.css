@@ -7,6 +7,7 @@
   position: relative;
   width: 350px;
   border-left: 1px solid #333;
+  border-right: 1px solid #333;
   padding: 10px 0 30px;
 }
 

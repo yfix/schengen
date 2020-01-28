@@ -8,10 +8,6 @@ const Summary = ({ days }) => (
       <span>{countSelected(days)}</span>
       <span className="Summary-Label">Days in Schengen</span>
     </div>
-    <div className="Summary-Section">
-      <span>0</span>
-      <span className="Summary-Label">Scheduled days</span>
-    </div>
   </div>
 );
 
