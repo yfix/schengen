@@ -1,17 +1,18 @@
 import date from './date';
 import getToday from './today';
+import { SCHENGEN_RANGE } from './constants';
 
 const collectDays = () => {
   const today = getToday();
   /** @type {Array<{ date: FlatDate, today?: boolean, disabled?: boolean, selected?: boolean }>} */
   const days = [];
 
-  for (let i = 180; i--;)
+  for (let i = SCHENGEN_RANGE; i--;)
     days.push({ date: date(today.year, today.month, today.date - i) });
 
   days[days.length - 1].today = true;
 
-  for (let i = 1; i <= 180; i++)
+  for (let i = 1; i <= SCHENGEN_RANGE; i++)
     days.push({ date: date(today.year, today.month, today.date + i), disabled: true });
 
   do {
