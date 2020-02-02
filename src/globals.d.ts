@@ -12,7 +12,7 @@ type FlatDate = DatePointer & {
 type Day = {
   date: FlatDate;
   today?: boolean;
-  disabled?: boolean;
+  outOfRange?: boolean;
   selected?: boolean;
   available?: number;
 };

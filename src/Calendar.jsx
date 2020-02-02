@@ -5,7 +5,7 @@ const monthsNames = ['January', 'February', 'March', 'April', 'May', 'June', 'Ju
 
 const formatMonth = d => `${monthsNames[d.month]} ${d.year}`;
 
-const dayClassName = day => `Day ${day.date.month % 2 ? 'Day-Odd' : 'Day-Even'}${day.disabled ? ' Day-Disabled' : ''}${day.selected ? ' Day-Selected' : ''}${day.today ? ' Day-Today' : ''}`;
+const dayClassName = day => `Day ${day.date.month % 2 ? 'Day-Odd' : 'Day-Even'}${day.outOfRange || day.available < 1 ? ' Day-Disabled' : ''}${day.selected ? ' Day-Selected' : ''}${day.today ? ' Day-Today' : ''}`;
 
 const repeat = (times, fn) => {
   const results = [];
@@ -28,9 +28,13 @@ const Calendar = ({ days, toggleSelection }) => (
           {day.date.date === 1
             ? <div className="Month">{formatMonth(day.date)}</div>
             : undefined}
-          <div key={day.date.toString() + Math.random()} onClick={() => toggleSelection(day)} className={dayClassName(day)}>
+          <div key={day.date.toString() + Math.random()}
+            className={dayClassName(day)}
+            onClick={() => day.outOfRange || day.available < 1 || toggleSelection(day)}
+          >
             {day.date.date}
-            {day.available ? <small className="Day_Available">+{day.available}</small> : undefined}
+            {/* {<small className="Day_Available">&nbsp;{day.ratio}</small>} */}
+            {day.available > 1 ? <small className="Day_Available">+{day.available - 1}</small> : undefined}
           </div>
         </React.Fragment>
       ))}

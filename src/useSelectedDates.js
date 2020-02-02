@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import useStorage from './useStorage';
 import cleanOutdatedDates from './cleanOutdatedDates';
-import { SCHENGEN_RANGE } from './constants';
+import { SCHENGEN_RANGE } from './settings';
 
 const useSelectedDates = () => {
   const [selectedDates, updateSelectedDays] = useStorage('selectedDates', []);

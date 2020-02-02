@@ -1,3 +1,7 @@
+const dateToString = function () {
+  return `${this.year}-${this.month + 1}-${this.date}`;
+};
+
 /**
  * @param {number} year
  * @param {number} month
@@ -11,9 +15,7 @@ const date = (year, month, date) => {
     month: d.getMonth(),
     date: d.getDate(),
     day: d.getDay(),
-    toString() {
-      return `${this.year}-${this.month}-${this.date}`;
-    }
+    toString: dateToString
   };
 };
 

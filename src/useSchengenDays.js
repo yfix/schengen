@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import compareDates from './compareDates';
 import collectDays from './collectDays';
 import findDate from './findDate';
-import getToday from './today';
-import { MAX_DAYS_IN_SCHENGEN, SCHENGEN_RANGE } from './constants';
+import { MAX_DAYS_IN_SCHENGEN, SCHENGEN_RANGE } from './settings';
 
 const originalDays = collectDays();
 
@@ -18,21 +16,32 @@ const markWithSelect = selectedDates => day => {
 };
 
 /**
- * @returns {(day: Day, index: number, allDays: Array<Day>) => Day}
+ * @param {Day} day
+ * @returns {Day}
  */
-const addAvailability = () => {
-  const today = getToday();
-  let daysInSchengen = 0;
-  return (day, index, allDays) => {
-    if (compareDates(day.date, today) < 0) {
-      if (day.selected) daysInSchengen++;
-      return day;
-    }
-    if (allDays[index - SCHENGEN_RANGE].selected)
-      daysInSchengen--;
-    const available = MAX_DAYS_IN_SCHENGEN - daysInSchengen;
-    return { ...day, available };
-  };
+const resetAvailability = day => ({
+  ...day,
+  available: day.outOfRange ? 0 : 1
+});
+
+const countRangesAvailability = days => {
+  let available = MAX_DAYS_IN_SCHENGEN;
+  for (let i = 0; i < SCHENGEN_RANGE; i++) {
+    if (days[i].selected)
+      available--;
+  }
+
+  const rangesAvailability = [available];
+  for (let i = 1; i < days.length; i++) {
+    if (days[i - 1].selected)
+      available++;
+    if (days[i + SCHENGEN_RANGE - 1] &&days[i + SCHENGEN_RANGE - 1].selected)
+      available--;
+      rangesAvailability.push(available);
+  }
+
+  // console.log(rangesAvailability);
+  return rangesAvailability;
 };
 
 /**
@@ -44,7 +53,82 @@ const useSchengenDays = (selectedDates) => {
   useEffect(() => {
     const days = originalDays
       .map(markWithSelect(selectedDates))
-      .map(addAvailability());
+      .map(resetAvailability);
+
+    const rangesAvailability = countRangesAvailability(days);
+
+    (() => { // Filter unavailable days
+      for (let i = 0; i < rangesAvailability.length; i++) {
+        if (rangesAvailability[i] > 0)
+          continue;
+
+        for (let ii = SCHENGEN_RANGE; ii--;) {
+          if (!days[i + ii].selected)
+            days[i + ii].available = -1;
+        }
+      }
+    })();
+
+    // (() => { // Count availability
+    //   for (let i = days.length - 1; !days[i + 1] || !days[i + 1].today; i--) {
+    //     const bottomEdge = i - SCHENGEN_RANGE + 1 <= 0 ? 0 : i - SCHENGEN_RANGE + 1;
+    //     const minOfRange = Math.min(...rangesAvailability.slice(bottomEdge, i + 1));
+    //     days[i].available = minOfRange + (days[i].selected ? 1 : 0);
+
+    //     const date = days[i].date
+    //     const range = `[${rangesAvailability.slice(bottomEdge, i)}]`;
+    //     const ratio = `${minOfRange}/${rangesAvailability[i]}`;
+    //     console.log(`%c${date}%c\t${range}\t%c${ratio}`, `color: ${days[i].selected ? 'gold' : 'inherit'}`, 'font-weight: normal', minOfRange !== rangesAvailability[i] ? 'color:orange' : '');
+    //     days[i].ratio2 = ratio;
+    //     days[i].ratio = `${minOfRange + (days[i].selected ? 1 : 0)}/${rangesAvailability[i] + (days[i].selected ? 1 : 0)}`;
+    //   }
+    // })();
+
+    (() => { // Count availability
+      let todayIndex = 0;
+      for (let i = 0; i < days.length; i++) {
+        if (!days[i].today && todayIndex === i) {
+          todayIndex++;
+          continue;
+        }
+        const bottomEdge = i - SCHENGEN_RANGE + 1 <= 0 ? 0 : i - SCHENGEN_RANGE + 1;
+        const minOfRange = Math.min(...rangesAvailability.slice(bottomEdge, i + 1));
+        days[i].available = minOfRange + (days[i].selected ? 1 : 0);
+      }
+
+      for (let i = todayIndex; i < days.length; i++) {
+        let available = days[i].available;
+        if (available < 1)
+          continue;
+
+        let last = available;
+        for (let s = 1; s <= last; s++) {
+          const next = i + s;
+          if (next >= days.length)
+            break;
+
+          if (days[next].available > days[next - 1].available - (days[next - 1].selected ? 1 : 0)) {
+            available++;
+            last++;
+          }
+
+          if (days[next].selected) {
+            available++;
+            last++;
+          }
+        }
+
+        // days[i].ratio = rangesAvailability[i];
+        // const date = days[i].date
+        // const bottomEdge = i - SCHENGEN_RANGE + 1 <= 0 ? 0 : i - SCHENGEN_RANGE + 1;
+        // const range = `[${rangesAvailability.slice(bottomEdge, i)}]`;
+        // const ratio = `${days[i].available}/${rangesAvailability[i]}`;
+        // console.log(`%c${date}\t%c${range}\t${available}\t%c${ratio}`, `color: ${days[i].selected ? 'gold' : 'inherit'}`, 'font-weight: normal', days[i].available !== rangesAvailability[i] ? 'color:orange' : '');
+
+        days[i].available = available > MAX_DAYS_IN_SCHENGEN ? MAX_DAYS_IN_SCHENGEN : available;
+      }
+    })();
+
     update(days);
   }, [selectedDates]);
 

@@ -5,7 +5,9 @@
 
 .Calendar-List {
   position: relative;
-  width: 350px;
+  box-sizing: border-box;
+  width: 366px;
+  min-height: 100%;
   border-left: 1px solid #333;
   border-right: 1px solid #333;
   padding: 10px 0 30px;
@@ -15,15 +17,13 @@
   display: inline-block;
   width: 50px;
   height: 50px;
+  margin: 1px;
   text-align: center;
   padding-top: 16px;
   box-sizing: border-box;
   line-height: 1;
   position: relative;
-}
-
-.Day:not(.Day-Disabled):hover {
-  outline: auto;
+  cursor: pointer;
 }
 
 .Day-Selected {
@@ -32,6 +32,7 @@
 
 .Day-Disabled {
   opacity: .5;
+  cursor: default;
 }
 
 .Day-Odd {
@@ -42,8 +43,16 @@
   color: green;
 }
 
+.Day-Even:not(.Day-Disabled):hover {
+  outline: 1px solid green;
+}
+
 .Day-Today {
   color: red;
+}
+
+.Day:not(.Day-Disabled):hover {
+  outline: 1px solid red;
 }
 
 .Day_Available {
@@ -66,4 +75,8 @@
   transform-origin: 100% 0%;
   margin-top: -10px;
   margin-right: 1.7em;
+}
+
+.Day_Available + .Day_Available {
+  top: 3px;
 }

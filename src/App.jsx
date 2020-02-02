@@ -14,7 +14,6 @@ const App = () => {
    * @param {Day} day
    */
   const toggleSelection = day => {
-    if (day.disabled) return;
     const selectedDate = selectedDates.find(date => !compareDates(date, day.date));
     if (selectedDate)
       updateSelectedDays(selectedDates.filter(date => date !== selectedDate));
