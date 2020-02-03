@@ -107,12 +107,7 @@ const useSchengenDays = (selectedDates) => {
           if (next >= days.length)
             break;
 
-          if (days[next].available > days[next - 1].available - (days[next - 1].selected ? 1 : 0)) {
-            available++;
-            last++;
-          }
-
-          if (days[next].selected) {
+          if (days[next].selected || days[next].available > (days[next - 1].available - (days[next - 1].selected ? 1 : 0))) {
             available++;
             last++;
           }
