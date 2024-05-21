@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "/static/css/main.e429ade4.css",
-    "main.js": "/static/js/main.5fe52258.js",
-    "index.html": "/index.html",
-    "main.e429ade4.css.map": "/static/css/main.e429ade4.css.map",
-    "main.5fe52258.js.map": "/static/js/main.5fe52258.js.map"
+    "main.css": "/schengen/static/css/main.e429ade4.css",
+    "main.js": "/schengen/static/js/main.5fe52258.js",
+    "index.html": "/schengen/index.html",
+    "main.e429ade4.css.map": "/schengen/static/css/main.e429ade4.css.map",
+    "main.5fe52258.js.map": "/schengen/static/js/main.5fe52258.js.map"
   },
   "entrypoints": [
     "static/css/main.e429ade4.css",
