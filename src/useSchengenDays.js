@@ -35,9 +35,9 @@ const countRangesAvailability = days => {
   for (let i = 1; i < days.length; i++) {
     if (days[i - 1].selected)
       available++;
-    if (days[i + SCHENGEN_RANGE - 1] &&days[i + SCHENGEN_RANGE - 1].selected)
+    if (days[i + SCHENGEN_RANGE - 1] && days[i + SCHENGEN_RANGE - 1].selected)
       available--;
-      rangesAvailability.push(available);
+    rangesAvailability.push(available);
   }
 
   // console.log(rangesAvailability);

@@ -6,10 +6,10 @@ const createStorage = prefix => ({
   set(key, value) {
     localStorage.setItem(`${prefix}/${key}`, JSON.stringify(value));
   },
-  
+
   /**
    * @param {string} key
-   * @param {function | any} defaultValue 
+   * @param {function | any} defaultValue
    */
   get(key, defaultValue) {
     if (localStorage.hasOwnProperty(`${prefix}/${key}`))

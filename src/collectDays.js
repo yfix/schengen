@@ -19,7 +19,7 @@ const collectDays = () => {
     const firstDay = days[0].date;
     const prevDay = date(firstDay.year, firstDay.month, firstDay.date - 1);
     if (prevDay.month !== firstDay.month)
-        break;
+      break;
     days.unshift({ date: prevDay, outOfRange: true });
   } while (true);
 
@@ -28,7 +28,7 @@ const collectDays = () => {
     const lastDay = days[days.length - 1].date;
     const nextDay = date(lastDay.year, lastDay.month, lastDay.date + 1);
     if (nextDay.month !== lastDay.month)
-        break;
+      break;
     days.push({ date: nextDay });
   } while (true);
 

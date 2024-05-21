@@ -9,7 +9,7 @@ const storage = createStorage('schengen');
  */
 const useStorage = (key, defaultValue) => {
   const [value, set] = useState(storage.get(key, defaultValue));
-  
+
   const update = newValue => {
     storage.set(key, newValue);
     set(newValue);

@@ -1,6 +1,6 @@
-import React from 'react';
-import './Summary.css';
-import countSelected from './countSelected';
+import React from "react";
+import "./Summary.css";
+import countSelected from "./countSelected";
 
 const Summary = ({ days }) => (
   <div className="Summary">

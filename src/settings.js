@@ -25,7 +25,7 @@ dateRanges.forEach((range) => {
   const startDate = new Date(range[0]);
   const endDate = new Date(range[1]);
 
-  for (let d = startDate; d <= endDate; d.setDate(d.getDate()+1)) {
+  for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
     if (d >= date180DaysAgo) {
       initialDates.push({
         year: d.getFullYear(),
