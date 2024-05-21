@@ -1,6 +1,6 @@
 import date from './date';
 import getToday from './today';
-import { SCHENGEN_RANGE, SCHENGEN_SCHEDULE_DAYS } from './settings';
+import { SCHENGEN_RANGE, SCHENGEN_SCHEDULE_DAYS, SCHENGEN_INIT_DAYS } from './settings';
 
 const collectDays = () => {
   const today = getToday();
@@ -22,8 +22,8 @@ const collectDays = () => {
         break;
     days.unshift({ date: prevDay, outOfRange: true });
   } while (true);
-  
-  
+
+
   do {
     const lastDay = days[days.length - 1].date;
     const nextDay = date(lastDay.year, lastDay.month, lastDay.date + 1);
@@ -31,6 +31,18 @@ const collectDays = () => {
         break;
     days.push({ date: nextDay });
   } while (true);
+
+  // Mark the days that are in SCHENGEN_INIT_DAYS as selected
+  SCHENGEN_INIT_DAYS.forEach(initDay => {
+    const day = days.find(d =>
+      d.date.year === initDay.year &&
+      d.date.month === initDay.month &&
+      d.date.date === initDay.date
+    );
+    if (day) {
+      day.selected = true;
+    }
+  });
 
   return days;
 };
