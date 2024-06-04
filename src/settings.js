@@ -9,6 +9,7 @@ const strDateRanges = `
 2024-01-20	2024-01-24
 2024-02-03	2024-02-17
 2024-04-05	2024-05-04
+2024-05-26	2024-06-08
 `;
 
 const dateRanges = strDateRanges

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import "./Calendar.css";
 
 const monthsNames = [
@@ -52,12 +52,26 @@ const repeat = (times, fn) => {
  * @param {(day: Day) => void} props.toggleSelection
  */
 const Calendar = ({ days, toggleSelection }) => {
+  const listRef = useRef(null);
+
+  useEffect(() => {
+    if (listRef.current) {
+      const todayElement = listRef.current.querySelector(".Day-Today");
+      if (todayElement) {
+        todayElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  }, []);
+
   // Adjust the start day to Monday
   const firstDayIndex = (days[0].date.day + 6) % 7;
 
   return (
     <div className="Calendar">
-      <div className="Calendar-List">
+      <div className="Calendar-List" ref={listRef}>
         {repeat(firstDayIndex, (i) => (
           <div key={i} className="Day Day-Empty"></div>
         ))}
