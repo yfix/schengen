@@ -1,6 +1,27 @@
 .Calendar {
   padding-left: 50px;
   user-select: none;
+  -webkit-user-select: none;
+}
+
+.Calendar-Weekdays {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  width: 366px;
+  box-sizing: border-box;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  font-size: 75%;
+  color: #666;
+}
+
+.Weekday {
+  width: 50px;
+  margin: 1px;
+  padding: 4px 0;
+  text-align: center;
 }
 
 .Calendar-List {
@@ -26,15 +47,6 @@
   cursor: pointer;
 }
 
-.Day-Selected {
-  background: pink;
-}
-
-.Day-Disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
 .Day-Odd {
   color: darkblue;
 }
@@ -43,26 +55,44 @@
   color: green;
 }
 
-.Day-Even:not(.Day-Disabled):hover {
-  outline: 1px solid green;
+.Day-Selected {
+  background: pink;
+}
+
+.Day-Blocked {
+  opacity: 0.45;
+}
+
+.Day-Over {
+  background: #e53935;
+  color: #fff;
+}
+
+.Day-Disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .Day-Today {
   color: red;
+  font-weight: 700;
 }
 
-.Day:not(.Day-Disabled):hover {
+.Day-Over.Day-Today {
+  color: #fff;
+}
+
+.Day:not(.Day-Disabled):not(.Day-Empty):hover {
   outline: 1px solid red;
 }
 
 .Day_Available {
   display: block;
   position: absolute;
-  width: 85%;
-}
-
-.Month {
-  color: crimson;
+  bottom: 4px;
+  width: 100%;
+  font-size: 65%;
+  opacity: 0.7;
 }
 
 .Month {
@@ -75,8 +105,5 @@
   transform-origin: 100% 0%;
   margin-top: -10px;
   margin-right: 1.7em;
-}
-
-.Day_Available + .Day_Available {
-  top: 3px;
+  color: crimson;
 }

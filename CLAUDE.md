@@ -19,7 +19,7 @@ Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks
 1. `npm test` — engine/logic changes. Calculation changes **must** come with a test case.
 2. `npm run typecheck && npm run lint` — types, imports, hooks rules.
 3. `npm run build` — bundling, assets, config.
-4. `npm run smoke` (~5 s) — boots the built app in headless Chromium, clicks today, fails on any page/console error, writes `.smoke/desktop.png`. `--mobile` for a 390×844 touch viewport. Prints `skipped` when Chromium isn't installed (cloud sandbox blocks the Playwright CDN; CI installs it).
+4. `npm run smoke` (~5 s) — boots the built app in headless Chromium, clicks today, fails on any page/console error, writes `.smoke/desktop.png`. `--mobile` for a 390×844 touch viewport. Prints `skipped` when Chromium isn't installed. Cloud sandbox (Playwright CDN blocked): `npm i --prefix /tmp/chr @sparticuz/chromium`, unpack once with `node -e "require('/tmp/chr/node_modules/@sparticuz/chromium').default.executablePath()"`, then `CHROMIUM_PATH=/tmp/chromium npm run smoke`.
 5. Look at `.smoke/*.png` — only when the change is visual.
 
 `npm run check` = rungs 1–4.
@@ -36,23 +36,26 @@ Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks
 
 ## Code map
 
-- `src/useSchengenDays.js` — the availability calculation (sliding 180-day windows, "+N" per day). Being replaced by a pure engine (plan PR2).
-- `src/collectDays.js` — builds the rendered day list (window before today, `repeat` windows after, padded to whole months).
-- `src/useSelectedDates.js`, `useStorage.js`, `storage.js` — selection persisted in localStorage under `schengen/selectedDates`. **Any storage-shape change needs a versioned key + migration.**
-- `src/settings.js` — URL params and constants. `src/queryParams.js` parses the query string.
-- `src/Calendar.jsx` — the grid (Monday-first, month labels); `Summary.jsx` — the big counter (hidden < 640 px).
-- `src/date.js`, `compareDates.js`, `findDate.js`, `today.js` — `{year, month, date}` date helpers (month is 0-based).
+- `src/engine/dates.ts` — days as integer ordinals (`Ord`, days since epoch from local Y/M/D); `parseIso`/`toIso`, `localToday`. No `Date` math elsewhere.
+- `src/engine/schengen.ts` — pure calculation: `analyze(selected, from, to, rules)` → `count(day)` (days in the window ending that day, prefix sums), `remaining`, `stayFrom(day)` (longest consecutive stay entering that day, binary search), `overstays`; `earliestEntry`, `visibleRange`. Tested against a brute-force oracle — keep that test passing.
+- `src/engine/ranges.ts` — parses pasted trips (`YYYY-MM-DD YYYY-MM-DD` per line).
+- `src/state/selection.ts` — external store (`useSyncExternalStore`) of selected `Ord`s, persisted as sorted ISO strings under `schengen/v2/days`; `migrate()` reads the legacy `schengen/selectedDates`. Syncs across tabs. **Any storage-shape change needs a new versioned key + migration + test.**
+- `src/state/storage.ts` — guarded localStorage JSON helpers. `src/state/useToday.ts` — today that rolls over at local midnight.
+- `src/settings.ts` — validated URL params → `{ window, max, windowsAhead }`.
+- `src/App.tsx` — wires today + selection → `analyze` → `Summary` + `Calendar`; prunes days older than the window.
+- `src/Calendar.tsx` — Monday-first grid, weekday header, month labels, memoized `Day` cells with `data-ord`; small number = `stayFrom` for unselected future days; `Day-Over` red, `Day-Blocked` dimmed (still clickable: warn, don't block).
+- `src/Summary.tsx` — used/left today, stay-until or earliest entry, planned days, overstay alert, import trips / clear all. Shown on mobile as a compact header.
 - `scripts/smoke.mjs` — Playwright smoke test.
 
 ## Conventions and gotchas
 
-- The rule: on any day, the days spent in the window `[day − 179, day]` must be ≤ 90 (entry and exit days count). Defaults come from `settings.js`; never hardcode 90/180 elsewhere.
+- The rule: on any day, the days spent in the window `[day − 179, day]` must be ≤ 90 (entry and exit days count). Defaults come from `settings.ts`; never hardcode 90/180 elsewhere.
 - Dates are local calendar days. Never parse `YYYY-MM-DD` with `new Date(str)` (that is UTC midnight → off-by-one west of UTC).
-- New code goes in TypeScript (`strict`, `noUncheckedIndexedAccess`); legacy `.js/.jsx` is allowed until it's rewritten.
+- TypeScript `strict` + `noUncheckedIndexedAccess`. Tests run with `TZ=America/Los_Angeles` to catch UTC-parsing bugs.
 - Vite `base: './'` so the build works under `yfix.github.io/schengen/`.
 - Branch per PR from `master`; never commit to `master`. PR description: what changed + how it was checked.
 - **Keep the docs current, inside the same PR:** update the State section of `docs/PROGRESS.md` and the code map above when the picture changes; tick items in `docs/plans/` when built. A design doc written in chat gets saved as `docs/plans/YYYY-MM-DD-<topic>.md` in the next PR.
-- **Autonomous flow (Yuri approved):** after `/ship` opens a PR, run `/review-merge <n>`, then `git checkout master && git pull --ff-only` and branch the next task. Stop and ask only when the reviewer reports BLOCKED or a decision is genuinely Yuri's.
+- **Merge flow:** after `/ship` opens a PR, run `/review-merge <n>` only if Yuri has OK'd autonomous merges for this repo (not yet); otherwise leave the PR for him and stack the next branch on it. After a merge: `git checkout master && git pull --ff-only`.
 - Dependent PRs: prefer merging before branching the next one; otherwise use `gh stack` (see the shipper agent).
 - GitHub: if `gh pr create` fails (GraphQL blocked in some sandboxes), use `gh api repos/yfix/schengen/pulls -f title=… -f head=… -f base=master -F body=@file`.
 - Cloud sandbox only: npm may need `npm_config_noproxy=localhost NO_PROXY=localhost no_proxy=localhost` for the smoke server; never `pkill -f` a pattern that matches your own shell.
