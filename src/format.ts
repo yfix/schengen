@@ -1,6 +1,4 @@
-import type { Ord } from './engine/dates';
-
-const asDate = (ord: Ord) => new Date(ord * 86_400_000);
+import { ordToUtcDate as asDate, toOrd, type Ord } from './engine/dates';
 
 const dayFmt = new Intl.DateTimeFormat(undefined, {
   day: 'numeric',
@@ -18,7 +16,7 @@ const weekdayFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short', timeZo
 export const formatDay = (ord: Ord) => dayFmt.format(asDate(ord));
 export const formatMonth = (ord: Ord) => monthFmt.format(asDate(ord));
 
-const MONDAY_2024_01_01 = 19723;
+const MONDAY_2024_01_01 = toOrd(2024, 0, 1);
 export const weekdayNames = Array.from({ length: 7 }, (_, i) =>
   weekdayFmt.format(asDate(MONDAY_2024_01_01 + i)),
 );

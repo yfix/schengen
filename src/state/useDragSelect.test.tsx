@@ -1,20 +1,9 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import App from '../App';
-import { localToday, type Ord } from '../engine/dates';
-import { parseSettings } from '../settings';
-import { createSelectionStore } from './selection';
+import { localToday } from '../engine/dates';
+import { renderApp as setup, sorted } from '../test/renderApp';
 import { applyRange } from './useDragSelect';
-
-const setup = () => {
-  const store = createSelectionStore();
-  const utils = render(<App store={store} settings={parseSettings('')} />);
-  const cell = (ord: Ord) => utils.container.querySelector<HTMLElement>(`[data-ord="${ord}"]`)!;
-  return { store, cell, ...utils };
-};
-
-const sorted = (s: ReadonlySet<Ord>) => [...s].sort((a, b) => a - b);
 const t = localToday();
 
 describe('applyRange', () => {

@@ -5,6 +5,7 @@ Mark the days you spent (or plan to spend) in the Schengen area and see how many
 ## Develop
 
 ```sh
+nvm use                            # Node 24 LTS from .nvmrc (22.22+/24.15+/26+ also work)
 npm install
 npx playwright install chromium   # once, for the smoke test
 npm run dev                        # http://localhost:5173

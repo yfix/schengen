@@ -1,16 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import App from './App';
-import { localToday } from './engine/dates';
-import { parseSettings } from './settings';
+import { localToday, toIso } from './engine/dates';
 import { createSelectionStore } from './state/selection';
-
-const setup = () => {
-  const store = createSelectionStore();
-  const utils = render(<App store={store} settings={parseSettings('')} />);
-  return { store, ...utils };
-};
+import { renderApp as setup } from './test/renderApp';
 
 describe('App', () => {
   it('toggles today and updates the summary', async () => {
@@ -28,7 +21,7 @@ describe('App', () => {
     const store = createSelectionStore();
     const t = localToday();
     store.add(Array.from({ length: 91 }, (_, i) => t + i));
-    const { container } = render(<App store={store} settings={parseSettings('')} />);
+    const { container } = setup(store);
     const over = container.querySelector<HTMLElement>('.Day-Over')!;
     expect(screen.getByRole('alert')).toHaveTextContent('Overstay on 1 day');
     await userEvent.click(over);
@@ -39,8 +32,10 @@ describe('App', () => {
     const { store } = setup();
     const t = localToday();
     await userEvent.click(screen.getByText('Import trips'));
-    const iso = (d: number) => new Date(d * 86_400_000).toISOString().slice(0, 10);
-    await userEvent.type(screen.getByLabelText('Trips, one per line'), `${iso(t)} ${iso(t + 2)}`);
+    await userEvent.type(
+      screen.getByLabelText('Trips, one per line'),
+      `${toIso(t)} ${toIso(t + 2)}`,
+    );
     await userEvent.click(screen.getByRole('button', { name: 'Add' }));
     expect(store.get().size).toBe(3);
     expect(screen.getByText('Added 3 days')).toBeInTheDocument();

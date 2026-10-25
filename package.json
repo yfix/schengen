@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Schengen 90/180 short-stay calculator: tap or drag days on a calendar, see how many days are left.",
   "engines": {
-    "node": ">=22"
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
   },
   "scripts": {
     "dev": "vite",
@@ -18,14 +18,14 @@
     "test:watch": "vitest",
     "smoke": "node scripts/smoke.mjs",
     "check": "npm run typecheck && npm run lint && npm test && npm run build && npm run smoke",
-    "deploy": "npm run build && gh-pages -d dist"
+    "deploy": "npm run build && sh scripts/deploy.sh"
   },
   "dependencies": {
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
+    "@eslint/js": "^10.0.1",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
@@ -33,12 +33,11 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
-    "eslint": "^9.39.5",
+    "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
-    "gh-pages": "^6.3.0",
     "globals": "^17.13.0",
-    "jsdom": "^30.1.3",
+    "happy-dom": "^21.0.4",
     "playwright": "^1.64.1",
     "prettier": "^3.9.10",
     "typescript": "~5.9",
