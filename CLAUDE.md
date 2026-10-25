@@ -1,6 +1,6 @@
 # Schengen calculator — working notes for Claude
 
-Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks days spent (or planned) in the Schengen area and sees how many days are left. React 19 + Vite 8 + Vitest, deployed to GitHub Pages (`gh-pages` branch). Solo dev (Yuri) + AI. Fork of `termosa/schengen.me.st` (remote `upstream`); default branch is **`master`**.
+Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks days spent (or planned) in the Schengen area and sees how many days are left. React 19 + Vite 8 + Vitest (happy-dom) + ESLint 10, Node 24 LTS (`.nvmrc`; `engine-strict` rejects unsupported Node like 25), deployed to GitHub Pages (`gh-pages` branch). Solo dev (Yuri) + AI. Fork of `termosa/schengen.me.st` (remote `upstream`); default branch is **`master`**.
 
 **Catch up here first:** `docs/PROGRESS.md` (where things stand; PR history = `git log --oneline master`) and `docs/plans/` (review findings + the roadmap with bug IDs B1–B11).
 
@@ -26,13 +26,13 @@ Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks
 
 ## Commands
 
-| Command                      | What                                                                      |
-| ---------------------------- | ------------------------------------------------------------------------- |
-| `npm run dev`                | Vite dev server on :5173                                                  |
-| `npm run check`              | test + typecheck + lint + build + smoke                                   |
-| `npm run test:watch`         | Vitest watch mode                                                         |
-| `npm run deploy`             | build + push `dist/` to `gh-pages` (Yuri only; denied for agents)         |
-| `?range=180&max=90&repeat=4` | URL params: window length, allowed days, how many windows ahead to render |
+| Command                      | What                                                                                          |
+| ---------------------------- | --------------------------------------------------------------------------------------------- |
+| `npm run dev`                | Vite dev server on :5173                                                                      |
+| `npm run check`              | test + typecheck + lint + build + smoke                                                       |
+| `npm run test:watch`         | Vitest watch mode                                                                             |
+| `npm run deploy`             | build + `scripts/deploy.sh` force-pushes `dist/` to `gh-pages` (Yuri only; denied for agents) |
+| `?range=180&max=90&repeat=4` | URL params: window length, allowed days, how many windows ahead to render                     |
 
 ## Code map
 
@@ -47,7 +47,8 @@ Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks
 - Undo/redo live in the selection store (`undo`, `redo`, `useHistory`); Ctrl/Cmd+Z, Ctrl+Shift+Z / Ctrl+Y.
 - `src/Calendar.tsx` — Monday-first grid, weekday header, month labels, memoized `Day` cells with `data-ord`; small number = `stayFrom` for unselected future days; `Day-Over` red, `Day-Blocked` dimmed (still clickable: warn, don't block).
 - `src/Summary.tsx` — used/left today, stay-until or earliest entry, planned days, overstay alert, import trips / clear all. Shown on mobile as a compact header.
-- `scripts/smoke.mjs` — Playwright smoke test.
+- `scripts/smoke.mjs` — Playwright smoke test. `scripts/deploy.sh` — publish `dist/` to `gh-pages` (no npm dependency).
+- `src/test/renderApp.tsx` — shared test helper (`renderApp(store?)` → `{ store, cell(ord), … }`, `sorted`).
 
 ## Conventions and gotchas
 

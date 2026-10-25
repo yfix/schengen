@@ -13,8 +13,10 @@ const ISO_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 export const toOrd = (year: number, month: number, date: number): Ord =>
   Math.round(Date.UTC(year, month, date) / MS_PER_DAY);
 
+export const ordToUtcDate = (ord: Ord) => new Date(ord * MS_PER_DAY);
+
 export const fromOrd = (ord: Ord): DateParts => {
-  const d = new Date(ord * MS_PER_DAY);
+  const d = ordToUtcDate(ord);
   return {
     year: d.getUTCFullYear(),
     month: d.getUTCMonth(),
