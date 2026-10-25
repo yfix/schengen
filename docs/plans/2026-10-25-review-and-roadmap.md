@@ -55,7 +55,7 @@ Deviation: deploy stays on `npm run deploy` → `gh-pages` branch (that's what P
 - Remove hardcoded ranges; add an **import ranges** UI (paste `YYYY-MM-DD YYYY-MM-DD` lines) (B1, B2).
 - `URLSearchParams` + validated params (B9).
 
-### Phase 3 — Drag-select
+### Phase 3 — Drag-select ✅ PR3
 
 - Pointer Events on the grid container; cells carry `data-ord`.
 - `pointerdown` on a cell: anchor; mode = cell selected ? `remove` : `add`.

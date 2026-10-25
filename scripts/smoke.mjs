@@ -79,6 +79,20 @@ try {
   if (selected < 1) result.errors.push('clicking today did not select it');
   result.selected = selected;
 
+  if (!mobile) {
+    const today = Number(await page.getAttribute('.Day-Today', 'data-ord'));
+    const box = async (ord) => (await page.locator(`[data-ord="${ord}"]`).boundingBox()) ?? {};
+    const a = await box(today + 1);
+    const b = await box(today + 9);
+    await page.mouse.move(a.x + 5, a.y + 5);
+    await page.mouse.down();
+    await page.mouse.move(b.x + 5, b.y + 5, { steps: 8 });
+    result.preview = await page.locator('.Day-InRange').count();
+    await page.mouse.up();
+    result.dragged = (await page.locator('.Day-Selected').count()) - selected;
+    if (result.dragged !== 9) result.errors.push(`drag selected ${result.dragged} days, want 9`);
+  }
+
   mkdirSync('.smoke', { recursive: true });
   await page.screenshot({ path: result.shot });
   result.ok = result.errors.length === 0;

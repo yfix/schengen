@@ -4,7 +4,7 @@ import type { Ord } from './engine/dates';
 import { parseRanges } from './engine/ranges';
 import { earliestEntry, type Analysis, type Rules } from './engine/schengen';
 import { formatDay, plural } from './format';
-import type { SelectionStore } from './state/selection';
+import type { History, SelectionStore } from './state/selection';
 
 type SummaryProps = {
   today: Ord;
@@ -12,6 +12,7 @@ type SummaryProps = {
   selected: ReadonlySet<Ord>;
   analysis: Analysis;
   store: SelectionStore;
+  history: History;
 };
 
 const ImportTrips = ({ store }: { store: SelectionStore }) => {
@@ -53,7 +54,7 @@ const ImportTrips = ({ store }: { store: SelectionStore }) => {
   );
 };
 
-const Summary = ({ today, rules, selected, analysis, store }: SummaryProps) => {
+const Summary = ({ today, rules, selected, analysis, store, history }: SummaryProps) => {
   const used = analysis.count(today);
   const stay = analysis.stayFrom(today);
   const entry = stay > 0 ? today : earliestEntry(analysis, today + 1);
@@ -87,6 +88,17 @@ const Summary = ({ today, rules, selected, analysis, store }: SummaryProps) => {
           </li>
         ) : null}
       </ul>
+      <div className="Summary-Actions Summary-History">
+        <button type="button" onClick={store.undo} disabled={!history.canUndo} title="Ctrl+Z">
+          Undo
+        </button>
+        <button type="button" onClick={store.redo} disabled={!history.canRedo} title="Ctrl+Shift+Z">
+          Redo
+        </button>
+      </div>
+      <p className="Summary-Hint">
+        Drag across days to mark or clear a trip (long-press on touch). Shift+click extends.
+      </p>
       <ImportTrips store={store} />
     </section>
   );

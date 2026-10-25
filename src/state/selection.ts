@@ -34,21 +34,53 @@ const persist = (days: ReadonlySet<Ord>) =>
   writeJson(SELECTION_KEY, [...days].sort((a, b) => a - b).map(toIso));
 
 type Listener = () => void;
+export type History = { canUndo: boolean; canRedo: boolean };
+
+const HISTORY_LIMIT = 100;
 
 export const createSelectionStore = () => {
   let current: ReadonlySet<Ord> = migrate();
+  let past: ReadonlySet<Ord>[] = [];
+  let future: ReadonlySet<Ord>[] = [];
+  let history: History = { canUndo: false, canRedo: false };
   const listeners = new Set<Listener>();
-  const emit = () => listeners.forEach((l) => l());
+  const emit = () => {
+    if (history.canUndo !== past.length > 0 || history.canRedo !== future.length > 0)
+      history = { canUndo: past.length > 0, canRedo: future.length > 0 };
+    listeners.forEach((l) => l());
+  };
 
-  const set = (next: ReadonlySet<Ord>) => {
+  const replace = (next: ReadonlySet<Ord>) => {
     current = next;
     persist(next);
     emit();
   };
 
+  const set = (next: ReadonlySet<Ord>) => {
+    if (next.size === current.size && [...next].every((d) => current.has(d))) return;
+    past = [...past, current].slice(-HISTORY_LIMIT);
+    future = [];
+    replace(next);
+  };
+
   return {
     get: () => current,
+    getHistory: () => history,
     set,
+    undo: () => {
+      const prev = past.at(-1);
+      if (!prev) return;
+      past = past.slice(0, -1);
+      future = [current, ...future];
+      replace(prev);
+    },
+    redo: () => {
+      const next = future[0];
+      if (!next) return;
+      future = future.slice(1);
+      past = [...past, current];
+      replace(next);
+    },
     toggle: (day: Ord) => {
       const next = new Set(current);
       if (!next.delete(day)) next.add(day);
@@ -58,7 +90,7 @@ export const createSelectionStore = () => {
     clear: () => set(new Set()),
     prune: (before: Ord) => {
       if ([...current].some((d) => d < before))
-        set(new Set([...current].filter((d) => d >= before)));
+        replace(new Set([...current].filter((d) => d >= before)));
     },
     reload: () => {
       current = migrate();
@@ -83,3 +115,6 @@ if (typeof window !== 'undefined') {
 
 export const useSelection = (store: SelectionStore = selectionStore) =>
   useSyncExternalStore(store.subscribe, store.get);
+
+export const useHistory = (store: SelectionStore = selectionStore) =>
+  useSyncExternalStore(store.subscribe, store.getHistory);
