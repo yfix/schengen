@@ -15,29 +15,27 @@ const collectDays = () => {
   for (let i = 1; i <= SCHENGEN_SCHEDULE_DAYS; i++)
     days.push({ date: date(today.year, today.month, today.date + i) });
 
-  do {
+  for (;;) {
     const firstDay = days[0].date;
     const prevDay = date(firstDay.year, firstDay.month, firstDay.date - 1);
-    if (prevDay.month !== firstDay.month)
-      break;
+    if (prevDay.month !== firstDay.month) break;
     days.unshift({ date: prevDay, outOfRange: true });
-  } while (true);
+  }
 
-
-  do {
+  for (;;) {
     const lastDay = days[days.length - 1].date;
     const nextDay = date(lastDay.year, lastDay.month, lastDay.date + 1);
-    if (nextDay.month !== lastDay.month)
-      break;
+    if (nextDay.month !== lastDay.month) break;
     days.push({ date: nextDay });
-  } while (true);
+  }
 
   // Mark the days that are in SCHENGEN_INIT_DAYS as selected
-  SCHENGEN_INIT_DAYS.forEach(initDay => {
-    const day = days.find(d =>
-      d.date.year === initDay.year &&
-      d.date.month === initDay.month &&
-      d.date.date === initDay.date
+  SCHENGEN_INIT_DAYS.forEach((initDay) => {
+    const day = days.find(
+      (d) =>
+        d.date.year === initDay.year &&
+        d.date.month === initDay.month &&
+        d.date.date === initDay.date,
     );
     if (day) {
       day.selected = true;

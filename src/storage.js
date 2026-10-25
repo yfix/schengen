@@ -1,4 +1,4 @@
-const createStorage = prefix => ({
+const createStorage = (prefix) => ({
   /**
    * @param {string} key
    * @param {any} value
@@ -12,10 +12,10 @@ const createStorage = prefix => ({
    * @param {function | any} defaultValue
    */
   get(key, defaultValue) {
-    if (localStorage.hasOwnProperty(`${prefix}/${key}`))
-      return JSON.parse(localStorage.getItem(`${prefix}/${key}`))
+    if (Object.hasOwn(localStorage, `${prefix}/${key}`))
+      return JSON.parse(localStorage.getItem(`${prefix}/${key}`));
     return typeof defaultValue === 'function' ? defaultValue() : defaultValue;
-  }
+  },
 });
 
 export default createStorage;

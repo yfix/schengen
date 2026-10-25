@@ -1,3 +1,3 @@
-const countSelected = days => days.filter(d => d.selected).length;
+const countSelected = (days) => days.filter((d) => d.selected).length;
 
 export default countSelected;
