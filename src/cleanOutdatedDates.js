@@ -7,9 +7,9 @@ const cleanOutdatedDates = (dates, daysLimit) => {
   const minimalDate = {
     year: startOfSchengenPeriod.getFullYear(),
     month: startOfSchengenPeriod.getMonth(),
-    date: startOfSchengenPeriod.getDate()
+    date: startOfSchengenPeriod.getDate(),
   };
-  return dates.filter(date => compareDates(minimalDate, date) <= 0);
+  return dates.filter((date) => compareDates(minimalDate, date) <= 0);
 };
 
 export default cleanOutdatedDates;

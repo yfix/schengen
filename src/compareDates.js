@@ -6,7 +6,7 @@ const orderedDateProps = ['year', 'month', 'date'];
  * @returns {ComparisonResult}
  */
 const compareDates = (leftDate, rightDate) => {
-  for (let prop of orderedDateProps) {
+  for (const prop of orderedDateProps) {
     if (leftDate[prop] < rightDate[prop]) return -1;
     if (leftDate[prop] > rightDate[prop]) return 1;
   }

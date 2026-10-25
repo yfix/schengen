@@ -1,19 +1,19 @@
-import React from "react";
-import "./Calendar.css";
+import React from 'react';
+import './Calendar.css';
 
 const monthsNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 const formatMonth = (d) => `${monthsNames[d.month]} ${d.year}`;
@@ -22,22 +22,22 @@ const formatMonth = (d) => `${monthsNames[d.month]} ${d.year}`;
  * @param day
  */
 function dayClassName(day) {
-  const classes = ["Day"];
+  const classes = ['Day'];
   if (day.date.month % 2) {
-    classes.push("Day-Odd");
+    classes.push('Day-Odd');
   } else {
-    classes.push("Day-Even");
+    classes.push('Day-Even');
   }
   if (day.outOfRange || day.available < 1) {
-    classes.push("Day-Disabled");
+    classes.push('Day-Disabled');
   }
   if (day.selected) {
-    classes.push("Day-Selected");
+    classes.push('Day-Selected');
   }
   if (day.today) {
-    classes.push("Day-Today");
+    classes.push('Day-Today');
   }
-  return classes.join(" ");
+  return classes.join(' ');
 }
 
 const repeat = (times, fn) => {
@@ -62,18 +62,11 @@ const Calendar = ({ days, toggleSelection }) => {
           <div key={i} className="Day Day-Empty"></div>
         ))}
         {days.map((day) => (
-          <React.Fragment
-            key={`${day.date.year}-${day.date.month}-${day.date.date}`}
-          >
-            {day.date.date === 1 ? (
-              <div className="Month">{formatMonth(day.date)}</div>
-            ) : undefined}
+          <React.Fragment key={`${day.date.year}-${day.date.month}-${day.date.date}`}>
+            {day.date.date === 1 ? <div className="Month">{formatMonth(day.date)}</div> : undefined}
             <div
-              key={day.date.toString() + Math.random()}
               className={dayClassName(day)}
-              onClick={() =>
-                day.outOfRange || day.available < 1 || toggleSelection(day)
-              }
+              onClick={() => day.outOfRange || day.available < 1 || toggleSelection(day)}
             >
               {day.date.date}
               {day.available > 1 ? (

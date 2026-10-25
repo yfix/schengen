@@ -15,7 +15,7 @@ const date = (year, month, date) => {
     month: d.getMonth(),
     date: d.getDate(),
     day: d.getDay(),
-    toString: dateToString
+    toString: dateToString,
   };
 };
 

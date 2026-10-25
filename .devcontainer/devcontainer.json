@@ -1,0 +1,17 @@
+{
+  "name": "Schengen",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": { "label": "App (Vite)", "onAutoForward": "openPreview" }
+  },
+  "postCreateCommand": "npm install && npx playwright install --with-deps chromium",
+  "postAttachCommand": "npm run dev",
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "vitest.explorer"],
+      "settings": { "editor.formatOnSave": true }
+    }
+  },
+  "hostRequirements": { "cpus": 2, "memory": "4gb" }
+}

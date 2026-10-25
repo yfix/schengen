@@ -17,7 +17,7 @@ const strDateRanges = `
 
 const dateRanges = strDateRanges
   .trim()
-  .split("\n")
+  .split('\n')
   .map((line) => line.trim().split(/\s+/));
 const initialDates = [];
 console.log(initialDates);
@@ -44,6 +44,9 @@ dateRanges.forEach((range) => {
 export const SCHENGEN_RANGE = queryParams.range ? +queryParams.range : 180;
 export const MAX_DAYS_IN_SCHENGEN = queryParams.max
   ? +queryParams.max
-  : (queryParams.range ? Math.floor(queryParams.range / 2) : 90);
-export const SCHENGEN_SCHEDULE_DAYS = SCHENGEN_RANGE * (queryParams.repeat ? +queryParams.repeat : 4);
+  : queryParams.range
+    ? Math.floor(queryParams.range / 2)
+    : 90;
+export const SCHENGEN_SCHEDULE_DAYS =
+  SCHENGEN_RANGE * (queryParams.repeat ? +queryParams.repeat : 4);
 export const SCHENGEN_INIT_DAYS = initialDates;

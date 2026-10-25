@@ -1,5 +1,5 @@
 {
-  "cSpell.words": [
-    "schengen"
-  ]
+  "cSpell.words": ["schengen"],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true
 }
