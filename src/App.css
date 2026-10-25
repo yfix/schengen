@@ -1,39 +1,52 @@
 .App {
   height: 100%;
-  overflow: auto;
   display: flex;
   min-width: 320px;
 }
 
-.Summary {
+.App > .Summary {
   flex: 1;
+  overflow: auto;
 }
 
-.Calendar {
+.App > .Calendar {
   height: 100%;
   overflow: auto;
 }
 
 @media (max-width: 640px) {
-  .App .Summary {
-    display: none !important;
+  .App {
+    flex-direction: column;
   }
 
-  .App .Calendar {
+  .App > .Summary {
+    flex: none;
+    font-size: 2.5em;
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .App > .Calendar {
     flex: 1;
+    height: auto;
     padding-left: 40px;
   }
 
-  .App .Calendar-List {
+  .App .Calendar-List,
+  .App .Calendar-Weekdays {
     margin: 0 auto;
     width: 282px;
   }
 
-  .App .Day {
+  .App .Day,
+  .App .Weekday {
     width: 40px;
+    margin: 0;
+  }
+
+  .App .Day {
     height: 40px;
     padding-top: 12px;
     font-size: 80%;
-    margin: 0;
   }
 }

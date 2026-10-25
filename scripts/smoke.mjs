@@ -20,7 +20,9 @@ const result = {
   shot: `.smoke/${mobile ? 'mobile' : 'desktop'}.png`,
 };
 
-if (!existsSync(chromium.executablePath())) {
+const executablePath = process.env.CHROMIUM_PATH || chromium.executablePath();
+
+if (!existsSync(executablePath)) {
   if (process.env.CI) {
     console.log(JSON.stringify({ ...result, errors: ['chromium not installed'] }));
     process.exit(1);
@@ -46,7 +48,10 @@ const waitForServer = async () => {
   throw new Error(`server not reachable at ${url}`);
 };
 
-const browser = await chromium.launch();
+const browser = await chromium.launch({
+  executablePath,
+  args: process.env.CHROMIUM_PATH ? ['--no-sandbox', '--no-zygote', '--single-process'] : [],
+});
 try {
   if (!flag('url')) {
     if (!existsSync('dist/index.html')) throw new Error('dist missing: run npm run build first');
