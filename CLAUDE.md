@@ -19,7 +19,7 @@ Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks
 1. `npm test` — engine/logic changes. Calculation changes **must** come with a test case.
 2. `npm run typecheck && npm run lint` — types, imports, hooks rules.
 3. `npm run build` — bundling, assets, config.
-4. `npm run smoke` (~5 s) — boots the built app in headless Chromium, clicks today, fails on any page/console error, writes `.smoke/desktop.png`. `--mobile` for a 390×844 touch viewport. Prints `skipped` when Chromium isn't installed. Cloud sandbox (Playwright CDN blocked): `npm i --prefix /tmp/chr @sparticuz/chromium`, unpack once with `node -e "require('/tmp/chr/node_modules/@sparticuz/chromium').default.executablePath()"`, then `CHROMIUM_PATH=/tmp/chromium npm run smoke`.
+4. `npm run smoke` (~5 s) — boots the built app in headless Chromium, clicks today, drags 9 days with the mouse (desktop), fails on any page/console error, writes `.smoke/desktop.png`. `--mobile` for a 390×844 touch viewport. Prints `skipped` when Chromium isn't installed. Cloud sandbox (Playwright CDN blocked): `npm i --prefix /tmp/chr @sparticuz/chromium`, unpack once with `node -e "require('/tmp/chr/node_modules/@sparticuz/chromium').default.executablePath()"`, then `CHROMIUM_PATH=/tmp/chromium npm run smoke`.
 5. Look at `.smoke/*.png` — only when the change is visual.
 
 `npm run check` = rungs 1–4.
@@ -43,6 +43,8 @@ Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks
 - `src/state/storage.ts` — guarded localStorage JSON helpers. `src/state/useToday.ts` — today that rolls over at local midnight.
 - `src/settings.ts` — validated URL params → `{ window, max, windowsAhead }`.
 - `src/App.tsx` — wires today + selection → `analyze` → `Summary` + `Calendar`; prunes days older than the window.
+- `src/state/useDragSelect.ts` — pointer-event drag select: mouse drags at once (pointer capture), touch needs a 300 ms long-press (else the list scrolls), Shift+click extends from the last day, Esc cancels, auto-scroll near the edges. The preview set feeds `analyze` live; one store write per gesture. `applyRange` is the pure part.
+- Undo/redo live in the selection store (`undo`, `redo`, `useHistory`); Ctrl/Cmd+Z, Ctrl+Shift+Z / Ctrl+Y.
 - `src/Calendar.tsx` — Monday-first grid, weekday header, month labels, memoized `Day` cells with `data-ord`; small number = `stayFrom` for unselected future days; `Day-Over` red, `Day-Blocked` dimmed (still clickable: warn, don't block).
 - `src/Summary.tsx` — used/left today, stay-until or earliest entry, planned days, overstay alert, import trips / clear all. Shown on mobile as a compact header.
 - `scripts/smoke.mjs` — Playwright smoke test.
@@ -55,7 +57,7 @@ Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks
 - Vite `base: './'` so the build works under `yfix.github.io/schengen/`.
 - Branch per PR from `master`; never commit to `master`. PR description: what changed + how it was checked.
 - **Keep the docs current, inside the same PR:** update the State section of `docs/PROGRESS.md` and the code map above when the picture changes; tick items in `docs/plans/` when built. A design doc written in chat gets saved as `docs/plans/YYYY-MM-DD-<topic>.md` in the next PR.
-- **Merge flow:** after `/ship` opens a PR, run `/review-merge <n>` only if Yuri has OK'd autonomous merges for this repo (not yet); otherwise leave the PR for him and stack the next branch on it. After a merge: `git checkout master && git pull --ff-only`.
+- **Merge flow (Yuri approved):** PRs are merged only through the separate reviewer: after `/ship` opens a PR, run `/review-merge <n>` (forked `reviewer` agent on Sonnet: waits for CI, reviews the diff against the blocker list, squash-merges, deletes the branch). Never merge from the main context. Then `git checkout master && git pull --ff-only` and branch the next task. For a stack, review-merge bottom-up. Stop and ask only when the reviewer reports BLOCKED or a decision is genuinely Yuri's.
 - Dependent PRs: prefer merging before branching the next one; otherwise use `gh stack` (see the shipper agent).
 - GitHub: if `gh pr create` fails (GraphQL blocked in some sandboxes), use `gh api repos/yfix/schengen/pulls -f title=… -f head=… -f base=master -F body=@file`.
 - Cloud sandbox only: npm may need `npm_config_noproxy=localhost NO_PROXY=localhost no_proxy=localhost` for the smoke server; never `pkill -f` a pattern that matches your own shell.

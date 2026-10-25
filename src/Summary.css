@@ -60,6 +60,17 @@
   margin-top: 0.5em;
 }
 
+.Summary-History {
+  font-size: 16%;
+}
+
+.Summary-Hint {
+  font-size: 13%;
+  color: #666;
+  text-align: center;
+  margin: 0.6em 0 0;
+}
+
 .Summary-Message {
   margin: 0.5em 0 0;
   text-align: center;
@@ -83,6 +94,15 @@
   .Summary-Facts {
     font-size: 30%;
     text-align: left;
+  }
+
+  .Summary-History {
+    font-size: 30%;
+    margin: 0;
+  }
+
+  .Summary-Hint {
+    display: none;
   }
 
   .Summary-Tools {
