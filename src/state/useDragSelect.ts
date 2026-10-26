@@ -97,7 +97,7 @@ export const useDragSelect = ({ selected, min, max, onCommit, longPressMs = 300 
       clearPending();
       const timer = window.setTimeout(() => {
         pending.current = null;
-        navigator.vibrate?.(10);
+        if ('vibrate' in navigator) navigator.vibrate(10);
         update({ anchor: raw, current: raw, mode });
       }, longPressMs);
       pending.current = { anchor: raw, mode, x: e.clientX, y: e.clientY, timer };
@@ -105,7 +105,7 @@ export const useDragSelect = ({ selected, min, max, onCommit, longPressMs = 300 
     }
 
     e.preventDefault();
-    e.currentTarget.setPointerCapture?.(e.pointerId);
+    e.currentTarget.setPointerCapture(e.pointerId);
     pointer.current = { x: e.clientX, y: e.clientY };
     update({ anchor: raw, current: raw, mode });
   };

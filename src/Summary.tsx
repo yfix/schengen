@@ -62,14 +62,14 @@ const Summary = ({ today, rules, selected, analysis, store, history }: SummaryPr
   const firstOver = analysis.overstays[0];
 
   return (
-    <section className="Summary" aria-live="polite">
-      <div className="Summary-Section">
+    <section className="Summary" aria-label="Summary">
+      <div className="Summary-Section" aria-live="polite">
         <span className="Summary-Number">{used}</span>
         <span className="Summary-Label">
           of {rules.max} days used in the last {rules.window}
         </span>
       </div>
-      <ul className="Summary-Facts">
+      <ul className="Summary-Facts" aria-live="polite">
         <li>{plural(Math.max(rules.max - used, 0), 'day')} left today</li>
         {stay > 0 ? (
           <li>
