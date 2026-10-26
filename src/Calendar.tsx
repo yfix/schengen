@@ -81,7 +81,7 @@ const Calendar = ({
   handlers,
 }: CalendarProps) => {
   useEffect(() => {
-    listRef.current?.querySelector('.Day-Today')?.scrollIntoView?.({ block: 'center' });
+    listRef.current?.querySelector('.Day-Today')?.scrollIntoView({ block: 'center' });
   }, [listRef]);
 
   const offset = (fromOrd(from).weekday + 6) % 7;

@@ -12,5 +12,12 @@ export default defineConfig({
     env: { TZ: 'America/Los_Angeles' },
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/main.tsx'],
+      reporter: ['text-summary', 'text', 'html'],
+      thresholds: { statements: 95, branches: 90, functions: 95, lines: 95 },
+    },
   },
 });

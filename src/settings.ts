@@ -10,7 +10,7 @@ const intParam = (
   max: number,
 ) => {
   const raw = params.get(name);
-  const n = raw === null ? NaN : Number(raw);
+  const n = raw === null || raw.trim() === '' ? NaN : Number(raw);
   return Number.isInteger(n) ? Math.min(Math.max(n, min), max) : fallback;
 };
 

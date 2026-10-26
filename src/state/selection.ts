@@ -13,11 +13,11 @@ const isLegacyDate = (v: unknown): v is LegacyDate =>
   ['year', 'month', 'date'].every((k) => Number.isInteger((v as Record<string, unknown>)[k]));
 
 export const migrate = (): Set<Ord> => {
-  const stored = readJson<unknown>(SELECTION_KEY);
+  const stored = readJson(SELECTION_KEY);
   if (Array.isArray(stored)) {
     return new Set(stored.flatMap((v) => (typeof v === 'string' ? (parseIso(v) ?? []) : [])));
   }
-  const legacy = readJson<unknown>(LEGACY_KEY);
+  const legacy = readJson(LEGACY_KEY);
   const days = new Set<Ord>(
     Array.isArray(legacy)
       ? legacy.filter(isLegacyDate).map((d) => toOrd(d.year, d.month, d.date))
