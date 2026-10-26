@@ -1,6 +1,6 @@
 # Schengen calculator — working notes for Claude
 
-Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks days spent (or planned) in the Schengen area and sees how many days are left. React 19 + Vite 8 + Vitest (happy-dom) + ESLint 10, Node 24 LTS (`.nvmrc`; `engine-strict` rejects unsupported Node like 25), deployed to GitHub Pages (`gh-pages` branch). Solo dev (Yuri) + AI. Fork of `termosa/schengen.me.st` (remote `upstream`); default branch is **`master`**.
+Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks days spent (or planned) in the Schengen area and sees how many days are left. React 19 + Vite 8 + Vitest (happy-dom) + ESLint 10, Node 24 LTS (`.nvmrc`; `engine-strict` rejects unsupported Node like 25), auto-deployed to GitHub Pages from `master` by CI. Yuri runs Node only in Docker (`./run`, macOS + OrbStack); never tell him to install Node/nvm/brew. Solo dev (Yuri) + AI. Fork of `termosa/schengen.me.st` (remote `upstream`); default branch is **`master`**.
 
 **Catch up here first:** `docs/PROGRESS.md` (where things stand; PR history = `git log --oneline master`) and `docs/plans/` (review findings + the roadmap with bug IDs B1–B11).
 
@@ -16,6 +16,8 @@ Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks
 
 ## Verification ladder (stop at the first rung that proves the change)
 
+Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is available; plain `npm …` only where host Node is the only option (cloud sandbox).
+
 1. `npm test` — engine/logic changes. Calculation changes **must** come with a test case.
 2. `npm run typecheck && npm run lint` — types, imports, hooks rules.
 3. `npm run build` — bundling, assets, config.
@@ -26,13 +28,14 @@ Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks
 
 ## Commands
 
-| Command                      | What                                                                                          |
-| ---------------------------- | --------------------------------------------------------------------------------------------- |
-| `npm run dev`                | Vite dev server on :5173                                                                      |
-| `npm run check`              | test + typecheck + lint + build + smoke                                                       |
-| `npm run test:watch`         | Vitest watch mode                                                                             |
-| `npm run deploy`             | build + `scripts/deploy.sh` force-pushes `dist/` to `gh-pages` (Yuri only; denied for agents) |
-| `?range=180&max=90&repeat=4` | URL params: window length, allowed days, how many windows ahead to render                     |
+| Command                      | What                                                                        |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| `./run npm run dev`          | Vite dev server on :5173 (in Docker)                                        |
+| `./run npm run check`        | test + typecheck + lint + build + smoke                                     |
+| `./run npm run test:watch`   | Vitest watch mode                                                           |
+| `./run`                      | shell in the Node container; `docker compose down -v` resets `node_modules` |
+| deploy                       | automatic: CI `deploy` job on push to `master` → `actions/deploy-pages`     |
+| `?range=180&max=90&repeat=4` | URL params: window length, allowed days, how many windows ahead to render   |
 
 ## Code map
 
@@ -47,7 +50,9 @@ Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks
 - Undo/redo live in the selection store (`undo`, `redo`, `useHistory`); Ctrl/Cmd+Z, Ctrl+Shift+Z / Ctrl+Y.
 - `src/Calendar.tsx` — Monday-first grid, weekday header, month labels, memoized `Day` cells with `data-ord`; small number = `stayFrom` for unselected future days; `Day-Over` red, `Day-Blocked` dimmed (still clickable: warn, don't block).
 - `src/Summary.tsx` — used/left today, stay-until or earliest entry, planned days, overstay alert, import trips / clear all. Shown on mobile as a compact header.
-- `scripts/smoke.mjs` — Playwright smoke test. `scripts/deploy.sh` — publish `dist/` to `gh-pages` (no npm dependency).
+- `scripts/smoke.mjs` — Playwright smoke test.
+- `run`, `compose.yaml`, `docker/` — Docker dev env: image `node:<.nvmrc>` + Playwright Chromium (version read from `package-lock.json`), `node_modules` in a named volume, entrypoint reruns `npm ci` when the lockfile hash changes. `.github/workflows/docker.yml` checks it on PRs touching those files.
+- `.github/workflows/ci.yml` — `check` job on PRs and `master`; on `master` it also uploads `dist/` and the `deploy` job publishes to Pages.
 - `src/test/renderApp.tsx` — shared test helper (`renderApp(store?)` → `{ store, cell(ord), … }`, `sorted`).
 
 ## Conventions and gotchas

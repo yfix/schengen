@@ -1,0 +1,26 @@
+name: schengen
+
+services:
+  node:
+    image: schengen-node:${NODE_VERSION:-24}-pw${PLAYWRIGHT_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        NODE_VERSION: ${NODE_VERSION:-24}
+        PLAYWRIGHT_VERSION: ${PLAYWRIGHT_VERSION:-latest}
+    init: true
+    working_dir: /app
+    environment:
+      - CI
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+      - npm_cache:/root/.npm
+    ports:
+      - '5173:5173'
+      - '4173:4173'
+
+volumes:
+  node_modules:
+  npm_cache:
