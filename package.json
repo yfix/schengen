@@ -17,8 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "smoke": "node scripts/smoke.mjs",
-    "check": "npm run typecheck && npm run lint && npm test && npm run build && npm run smoke",
-    "deploy": "npm run build && sh scripts/deploy.sh"
+    "check": "npm run typecheck && npm run lint && npm test && npm run build && npm run smoke"
   },
   "dependencies": {
     "react": "^19.3.1",

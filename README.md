@@ -4,13 +4,17 @@ Mark the days you spent (or plan to spend) in the Schengen area and see how many
 
 ## Develop
 
+Node runs in Docker only; no host Node, nvm or brew needed. Any Docker CLI works (OrbStack, Docker Desktop, Colima).
+
 ```sh
-nvm use                            # Node 24 LTS from .nvmrc (22.22+/24.15+/26+ also work)
-npm install
-npx playwright install chromium   # once, for the smoke test
-npm run dev                        # http://localhost:5173
-npm run check                      # test, typecheck, lint, build, smoke
+./run npm run dev                  # http://localhost:5173
+./run npm run check                # test, typecheck, lint, build, smoke (headless Chromium)
+./run npm run test:watch
+./run npm install <pkg>            # updates package.json + package-lock.json on the host
+./run                              # shell in the container
 ```
+
+`./run` builds a `node:<.nvmrc>` image with Playwright Chromium matching `package-lock.json`, keeps `node_modules` in a Docker volume (Linux binaries, never on the host) and reruns `npm ci` whenever the lockfile changes. Reset: `docker compose down -v`.
 
 Or open the repo in a devcontainer / Codespace.
 
@@ -18,7 +22,7 @@ URL params: `?range=180&max=90&repeat=4`.
 
 ## Deploy
 
-`npm run deploy` builds and pushes `dist/` to the `gh-pages` branch.
+Automatic: every push to `master` (i.e. a merged PR) runs CI and, if it passes, deploys `dist/` to GitHub Pages via `actions/deploy-pages`. Manual re-deploy: Actions → CI → Run workflow on `master`.
 
 ## Working with Claude
 
