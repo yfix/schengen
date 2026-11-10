@@ -12,7 +12,8 @@ Where the project stands, for the next person or AI session. Plans live in `docs
 - Perf: `stayFrom` for the whole calendar 33 ms → 5 ms (empty selection) via the `stay(d) ≥ stay(d−1) − 1` bound.
 - Keyboard: calendar is a roving-tabindex grid (arrows, Space, Shift+arrows, Home/End, PageUp/PageDown), visible focus ring.
 - Locale: week starts on the locale's first day (`?week=` overrides); month/day names via `Intl`. Dark mode follows the OS (`prefers-color-scheme`), colors are CSS variables.
-- Next: real PWA/offline + CSP, ICS export.
+- PWA: installable manifest, offline via `public/sw.js` (smoke checks an offline reload); strict CSP meta in the build.
+- Next: ICS export.
 
 ## History
 
