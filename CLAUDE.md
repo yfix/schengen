@@ -21,7 +21,7 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 1. `npm test` — engine/logic changes. Calculation changes **must** come with a test case.
 2. `npm run typecheck && npm run lint` — types, imports, hooks rules.
 3. `npm run build` — bundling, assets, config.
-4. `npm run smoke` (~5 s) — boots the built app in headless Chromium, clicks today, drags 9 days with the mouse (desktop), fails on any page/console error, writes `.smoke/desktop.png`. `--mobile` for a 390×844 touch viewport. Prints `skipped` when Chromium isn't installed. Cloud sandbox (Playwright CDN blocked): `npm i --prefix /tmp/chr @sparticuz/chromium`, unpack once with `node -e "require('/tmp/chr/node_modules/@sparticuz/chromium').default.executablePath()"`, then `CHROMIUM_PATH=/tmp/chromium npm run smoke`.
+4. `npm run smoke` (~5 s) — boots the built app in headless Chromium, clicks today, drags 9 days with the mouse (desktop), reloads offline (service worker), fails on any page/console error (incl. CSP violations), writes `.smoke/desktop.png`. `--mobile` for a 390×844 touch viewport. Prints `skipped` when Chromium isn't installed. Cloud sandbox (Playwright CDN blocked): `npm i --prefix /tmp/chr @sparticuz/chromium`, unpack once with `node -e "require('/tmp/chr/node_modules/@sparticuz/chromium').default.executablePath()"`, then `CHROMIUM_PATH=/tmp/chromium npm run smoke`.
 5. Look at `.smoke/*.png` — only when the change is visual.
 
 `npm run check` = rungs 1–4, with tests under coverage thresholds (95% statements/lines/functions, 90% branches; `npm run test:coverage`, HTML report in `coverage/`).
@@ -56,7 +56,9 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 - `src/Summary.tsx` — used/left today, stay-until or earliest entry, planned days, overstay alert, the Import / export panel (`src/DataTools.tsx`: paste trips, clear all, JSON export/import, copy share link). Shown on mobile as a compact header.
 - `src/Planner.tsx` — "Plan a trip": stay length when entering on a date, earliest entry for N days.
 - `src/TripList.tsx` — collapsible list of trips derived from the selection; edit (date inputs, entry ≥ first relevant day) or delete via `store.replaceRange` (undoable).
-- `scripts/smoke.mjs` — Playwright smoke test.
+- `public/sw.js` — service worker (plain JS, registered only in production by `src/registerSw.ts`): navigations network-first with cached `index.html` fallback; on install and each online navigation it caches the `assets/*` referenced by the fresh `index.html` + icons/manifest and drops stale ones. Bump `CACHE` only to force-wipe.
+- `vite.config.ts` — `csp()` plugin injects a strict `Content-Security-Policy` meta at build time only (dev keeps Vite's inline HMR). Adding a CDN, inline script/style or external fetch needs a CSP change.
+- `scripts/smoke.mjs` — Playwright smoke test; desktop run also reloads offline and checks the app and selection survive.
 - Tests sit next to the code (`*.test.ts[x]`): engine (`dates`, `ranges`, `schengen` + oracle), `storage`, `selection` (migration, undo/redo, cross-tab), `useToday`, `useDragSelect`, `settings`, `format`, `Summary`, `App`.
 - `run`, `compose.yaml`, `docker/` — Docker dev env: image `node:<.nvmrc>` + Playwright Chromium (version read from `package-lock.json`), `node_modules` in a named volume, entrypoint reruns `npm ci` when the lockfile hash changes. `.github/workflows/docker.yml` checks it on PRs touching those files.
 - `.github/workflows/ci.yml` — `check` job on PRs and `master`; on `master` it also uploads `dist/` and the `deploy` job publishes to Pages.

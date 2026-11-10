@@ -91,6 +91,17 @@ try {
     await page.mouse.up();
     result.dragged = (await page.locator('.Day-Selected').count()) - selected;
     if (result.dragged !== 9) result.errors.push(`drag selected ${result.dragged} days, want 9`);
+
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.ready;
+    });
+    await page.reload();
+    await page.context().setOffline(true);
+    await page.reload();
+    await page.waitForSelector('.Day-Today', { timeout: 5000 });
+    result.offline = (await page.locator('.Day-Selected').count()) === selected + 9;
+    if (!result.offline) result.errors.push('offline reload lost the app or the selection');
+    await page.context().setOffline(false);
   }
 
   mkdirSync('.smoke', { recursive: true });
