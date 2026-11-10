@@ -58,6 +58,7 @@ const App = ({ store = selectionStore, settings = defaultSettings }: AppProps) =
         analysis={analysis}
         store={store}
         history={history}
+        firstRelevant={range.firstRelevant}
       />
       <Calendar
         from={range.from}

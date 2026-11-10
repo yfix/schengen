@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { toIso } from './dates';
-import { parseRanges } from './ranges';
+import { parseRanges, toTrips, tripLength } from './ranges';
 
 const iso = (text: string) => parseRanges(text).days.map(toIso);
 
@@ -51,5 +51,22 @@ describe('parseRanges', () => {
   it('returns nothing for empty input', () => {
     expect(parseRanges('')).toEqual({ days: [], errors: [] });
     expect(parseRanges('\n \n')).toEqual({ days: [], errors: [] });
+  });
+});
+
+describe('toTrips', () => {
+  it('groups consecutive days into sorted trips', () => {
+    expect(toTrips([12, 3, 4, 5, 10, 11, 20])).toEqual([
+      { start: 3, end: 5 },
+      { start: 10, end: 12 },
+      { start: 20, end: 20 },
+    ]);
+    expect(toTrips(new Set<number>())).toEqual([]);
+  });
+
+  it('ignores duplicates and measures length inclusively', () => {
+    const trips = toTrips([1, 1, 2]);
+    expect(trips).toEqual([{ start: 1, end: 2 }]);
+    expect(tripLength(trips[0]!)).toBe(2);
   });
 });

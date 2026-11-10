@@ -72,7 +72,7 @@ Deviation: deploy stays on `npm run deploy` → `gh-pages` branch (that's what P
 
 - Summary also on mobile (sticky header): used in window, remaining today, max stay if entering today, next day that frees up, overstay warning.
 - Hover/tap a day → tooltip: window count, remaining, max consecutive stay from there.
-- Trip list (ranges derived from the selection): edit/delete, add by dates.
+- [x] Trip list (ranges derived from the selection): edit/delete, add by dates (add = Import trips).
 - Planner: "enter on X, how long can I stay?" / "earliest entry for N days".
 - Undo/redo (Ctrl+Z / Ctrl+Shift+Z), clear all with confirm.
 - Export/import JSON + share link (ranges in the URL hash).

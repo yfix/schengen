@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { parseIso, toIso, toOrd, type Ord } from '../engine/dates';
+import type { Trip } from '../engine/ranges';
 import { readJson, removeKey, storageKey, writeJson } from './storage';
 
 export const SELECTION_KEY = 'v2/days';
@@ -87,6 +88,12 @@ export const createSelectionStore = () => {
       set(next);
     },
     add: (days: Iterable<Ord>) => set(new Set([...current, ...days])),
+    replaceRange: (from: Trip, to: Trip | null) => {
+      const next = new Set(current);
+      for (let d = from.start; d <= from.end; d++) next.delete(d);
+      if (to) for (let d = to.start; d <= to.end; d++) next.add(d);
+      set(next);
+    },
     clear: () => set(new Set()),
     prune: (before: Ord) => {
       if ([...current].some((d) => d < before))

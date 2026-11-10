@@ -4,6 +4,7 @@ import type { Ord } from './engine/dates';
 import { parseRanges } from './engine/ranges';
 import { earliestEntry, type Analysis, type Rules } from './engine/schengen';
 import { formatDay, plural } from './format';
+import TripList from './TripList';
 import type { History, SelectionStore } from './state/selection';
 
 type SummaryProps = {
@@ -13,6 +14,7 @@ type SummaryProps = {
   analysis: Analysis;
   store: SelectionStore;
   history: History;
+  firstRelevant: Ord;
 };
 
 const ImportTrips = ({ store }: { store: SelectionStore }) => {
@@ -54,7 +56,15 @@ const ImportTrips = ({ store }: { store: SelectionStore }) => {
   );
 };
 
-const Summary = ({ today, rules, selected, analysis, store, history }: SummaryProps) => {
+const Summary = ({
+  today,
+  rules,
+  selected,
+  analysis,
+  store,
+  history,
+  firstRelevant,
+}: SummaryProps) => {
   const used = analysis.count(today);
   const stay = analysis.stayFrom(today);
   const entry = stay > 0 ? today : earliestEntry(analysis, today + 1);
@@ -99,6 +109,7 @@ const Summary = ({ today, rules, selected, analysis, store, history }: SummaryPr
       <p className="Summary-Hint">
         Drag across days to mark or clear a trip (long-press on touch). Shift+click extends.
       </p>
+      <TripList selected={selected} min={firstRelevant} store={store} />
       <ImportTrips store={store} />
     </section>
   );
