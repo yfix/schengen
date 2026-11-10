@@ -135,6 +135,16 @@ describe('earliestEntry', () => {
     const a = analyze(new Set(span(T - 89, 90)), T - 10, T + 30, rules);
     expect(earliestEntry(a, T + 1)).toBeNull();
   });
+
+  it('finds the first day that allows a stay of the given length', () => {
+    const sel = new Set(span(T - 100, 85));
+    const a = analyze(sel, T - 10, T + 200, rules);
+    const entry = earliestEntry(a, T, 30);
+    expect(entry).not.toBeNull();
+    expect(naiveStay(sel, entry!, rules)).toBeGreaterThanOrEqual(30);
+    expect(naiveStay(sel, entry! - 1, rules)).toBeLessThan(30);
+    expect(earliestEntry(a, T, rules.max + 1)).toBeNull();
+  });
 });
 
 describe('visibleRange', () => {

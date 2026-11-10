@@ -12,6 +12,8 @@ type DayState = {
   inactive: boolean;
   over: boolean;
   stay: number | null;
+  used: number | null;
+  max: number;
   inRange: boolean;
 };
 
@@ -29,6 +31,7 @@ type CalendarProps = {
   today: Ord;
   selected: ReadonlySet<Ord>;
   analysis: Analysis;
+  max: number;
   range: DragRange | null;
   listRef: RefObject<HTMLDivElement | null>;
   handlers: DragHandlers;
@@ -39,6 +42,7 @@ const label = (s: DayState) => {
   if (s.today) parts.push('today');
   if (s.selected) parts.push('in Schengen');
   if (s.over) parts.push('overstay');
+  if (s.used !== null) parts.push(`${s.used} of ${s.max} days used in the window`);
   if (s.stay !== null)
     parts.push(s.stay > 0 ? `entering here allows ${s.stay} days` : 'no days left');
   return parts.join(', ');
@@ -76,6 +80,7 @@ const Calendar = ({
   today,
   selected,
   analysis,
+  max,
   range,
   listRef,
   handlers,
@@ -96,6 +101,8 @@ const Calendar = ({
       inactive: ord < firstRelevant,
       over: isSelected && analysis.remaining(ord) < 0,
       stay: !isSelected && ord >= today ? analysis.stayFrom(ord) : null,
+      used: ord < firstRelevant ? null : analysis.count(ord),
+      max,
       inRange: range !== null && ord >= range.lo && ord <= range.hi,
     };
     if (fromOrd(ord).date === 1)

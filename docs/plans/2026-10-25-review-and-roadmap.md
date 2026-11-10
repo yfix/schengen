@@ -71,9 +71,9 @@ Deviation: deploy stays on `npm run deploy` → `gh-pages` branch (that's what P
 ### Phase 4 — Auto-suggested UX
 
 - Summary also on mobile (sticky header): used in window, remaining today, max stay if entering today, next day that frees up, overstay warning.
-- Hover/tap a day → tooltip: window count, remaining, max consecutive stay from there.
+- [x] Hover/tap a day → tooltip: window count, remaining, max consecutive stay from there (native `title`/`aria-label`).
 - [x] Trip list (ranges derived from the selection): edit/delete, add by dates (add = Import trips).
-- Planner: "enter on X, how long can I stay?" / "earliest entry for N days".
+- [x] Planner: "enter on X, how long can I stay?" / "earliest entry for N days".
 - Undo/redo (Ctrl+Z / Ctrl+Shift+Z), clear all with confirm.
 - [x] Export/import JSON + share link (ranges in the URL hash).
 - Weekday header, `Intl.DateTimeFormat` month names, dark mode.

@@ -77,7 +77,7 @@ export const analyze = (selected: ReadonlySet<Ord>, from: Ord, to: Ord, rules: R
   };
 };
 
-export const earliestEntry = (analysis: Analysis, after: Ord): Ord | null => {
-  for (let day = after; day <= analysis.to; day++) if (analysis.stayFrom(day) > 0) return day;
+export const earliestEntry = (analysis: Analysis, after: Ord, length = 1): Ord | null => {
+  for (let day = after; day <= analysis.to; day++) if (analysis.stayFrom(day) >= length) return day;
   return null;
 };

@@ -3,6 +3,7 @@ import DataTools from './DataTools';
 import type { Ord } from './engine/dates';
 import { earliestEntry, type Analysis, type Rules } from './engine/schengen';
 import { formatDay, plural } from './format';
+import Planner from './Planner';
 import TripList from './TripList';
 import type { History, SelectionStore } from './state/selection';
 
@@ -69,6 +70,7 @@ const Summary = ({
       <p className="Summary-Hint">
         Drag across days to mark or clear a trip (long-press on touch). Shift+click extends.
       </p>
+      <Planner today={today} rules={rules} analysis={analysis} />
       <TripList selected={selected} min={firstRelevant} store={store} />
       <DataTools store={store} selected={selected} rules={rules} />
     </section>

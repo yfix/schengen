@@ -69,6 +69,7 @@ const App = ({ store = selectionStore, settings = defaultSettings }: AppProps) =
         today={today}
         selected={shown}
         analysis={analysis}
+        max={settings.max}
         range={drag.range}
         listRef={drag.listRef}
         handlers={drag.handlers}
