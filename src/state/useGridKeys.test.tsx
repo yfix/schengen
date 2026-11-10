@@ -50,6 +50,17 @@ describe('keyboard grid', () => {
     expect([back.year, back.month]).toEqual([year, month]);
   });
 
+  it('follows a Sunday week start', async () => {
+    const { cell, container } = renderApp(undefined, '?week=0');
+    const user = userEvent.setup();
+    cell(t).focus();
+    await user.keyboard('{Home}');
+    expect(fromOrd(Number((document.activeElement as HTMLElement).dataset.ord)).weekday).toBe(0);
+    const first = container.querySelector('.Calendar-List .Day:not(.Day-Empty)')!;
+    const pads = container.querySelectorAll('.Calendar-List .Day-Empty').length;
+    expect(pads).toBe(fromOrd(Number(first.getAttribute('data-ord'))).weekday);
+  });
+
   it('clamps PageDown to the end of a shorter month', async () => {
     const { cell } = renderApp();
     const user = userEvent.setup();

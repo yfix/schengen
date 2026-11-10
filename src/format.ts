@@ -16,9 +16,23 @@ const weekdayFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short', timeZo
 export const formatDay = (ord: Ord) => dayFmt.format(asDate(ord));
 export const formatMonth = (ord: Ord) => monthFmt.format(asDate(ord));
 
-const MONDAY_2024_01_01 = toOrd(2024, 0, 1);
-export const weekdayNames = Array.from({ length: 7 }, (_, i) =>
-  weekdayFmt.format(asDate(MONDAY_2024_01_01 + i)),
-);
+const SUNDAY_2024_01_07 = toOrd(2024, 0, 7);
+export const weekdayNames = (weekStart: number) =>
+  Array.from({ length: 7 }, (_, i) => weekdayFmt.format(asDate(SUNDAY_2024_01_07 + weekStart + i)));
+
+type WeekInfo = { firstDay: number };
+type LocaleWithWeek = Intl.Locale & { getWeekInfo?: () => WeekInfo; weekInfo?: WeekInfo };
+
+export const localeWeekStart = (locale?: string): number => {
+  try {
+    const loc = new Intl.Locale(
+      locale ?? new Intl.DateTimeFormat().resolvedOptions().locale,
+    ) as LocaleWithWeek;
+    const info = loc.getWeekInfo?.() ?? loc.weekInfo;
+    return info ? info.firstDay % 7 : 1;
+  } catch {
+    return 1;
+  }
+};
 
 export const plural = (n: number, word: string) => `${n} ${word}${Math.abs(n) === 1 ? '' : 's'}`;

@@ -31,7 +31,7 @@
 }
 
 .Summary-Warning {
-  color: #c62828;
+  color: var(--warning);
   font-weight: 700;
 }
 
@@ -66,7 +66,7 @@
 
 .Summary-Hint {
   font-size: 13%;
-  color: #666;
+  color: var(--muted);
   text-align: center;
   margin: 0.6em 0 0;
 }
@@ -146,9 +146,9 @@
   overflow: hidden;
   cursor: pointer;
   padding: 1px 6px;
-  border: 1px solid #767676;
+  border: 1px solid var(--control-border);
   border-radius: 2px;
-  background: #efefef;
+  background: var(--control);
 }
 
 .Summary-File input {
@@ -159,7 +159,7 @@
 }
 
 .Summary-File:focus-within {
-  outline: 2px solid #1565c0;
+  outline: 2px solid var(--focus);
 }
 
 .Summary-Link {

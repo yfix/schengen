@@ -33,6 +33,7 @@ const App = ({ store = selectionStore, settings = defaultSettings }: AppProps) =
   });
   const keys = useGridKeys({
     today,
+    weekStart: settings.weekStart,
     min: range.firstRelevant,
     max: range.to,
     listRef: drag.listRef,
@@ -83,6 +84,7 @@ const App = ({ store = selectionStore, settings = defaultSettings }: AppProps) =
         listRef={drag.listRef}
         handlers={drag.handlers}
         focus={keys.focus}
+        weekStart={settings.weekStart}
         keys={{ onKeyDown: keys.onKeyDown, onFocus: keys.onFocus }}
       />
     </div>

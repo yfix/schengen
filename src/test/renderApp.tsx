@@ -4,8 +4,8 @@ import type { Ord } from '../engine/dates';
 import { parseSettings } from '../settings';
 import { createSelectionStore, type SelectionStore } from '../state/selection';
 
-export const renderApp = (store: SelectionStore = createSelectionStore()) => {
-  const utils = render(<App store={store} settings={parseSettings('')} />);
+export const renderApp = (store: SelectionStore = createSelectionStore(), search = '?week=1') => {
+  const utils = render(<App store={store} settings={parseSettings(search)} />);
   const cell = (ord: Ord) => utils.container.querySelector<HTMLElement>(`[data-ord="${ord}"]`)!;
   return { store, cell, ...utils };
 };
