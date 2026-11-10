@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import './Summary.css';
+import DataTools from './DataTools';
 import type { Ord } from './engine/dates';
-import { parseRanges } from './engine/ranges';
 import { earliestEntry, type Analysis, type Rules } from './engine/schengen';
 import { formatDay, plural } from './format';
 import TripList from './TripList';
@@ -15,45 +14,6 @@ type SummaryProps = {
   store: SelectionStore;
   history: History;
   firstRelevant: Ord;
-};
-
-const ImportTrips = ({ store }: { store: SelectionStore }) => {
-  const [text, setText] = useState('');
-  const [message, setMessage] = useState('');
-  const submit = () => {
-    const { days, errors } = parseRanges(text);
-    if (errors.length) {
-      setMessage(`Can't read line ${errors.join(', ')} (use YYYY-MM-DD YYYY-MM-DD)`);
-      return;
-    }
-    store.add(days);
-    setText('');
-    setMessage(`Added ${plural(days.length, 'day')}`);
-  };
-  return (
-    <details className="Summary-Tools">
-      <summary>Import trips</summary>
-      <textarea
-        aria-label="Trips, one per line"
-        placeholder={'2026-07-21 2026-08-02\n2026-10-04'}
-        rows={4}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      <div className="Summary-Actions">
-        <button type="button" onClick={submit} disabled={!text.trim()}>
-          Add
-        </button>
-        <button
-          type="button"
-          onClick={() => window.confirm('Remove all marked days?') && store.clear()}
-        >
-          Clear all
-        </button>
-      </div>
-      {message ? <p className="Summary-Message">{message}</p> : null}
-    </details>
-  );
 };
 
 const Summary = ({
@@ -110,7 +70,7 @@ const Summary = ({
         Drag across days to mark or clear a trip (long-press on touch). Shift+click extends.
       </p>
       <TripList selected={selected} min={firstRelevant} store={store} />
-      <ImportTrips store={store} />
+      <DataTools store={store} selected={selected} rules={rules} />
     </section>
   );
 };

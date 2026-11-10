@@ -60,7 +60,7 @@ describe('Summary', () => {
   it('reports unreadable import lines without changing the selection', async () => {
     const { store } = renderApp();
     const user = userEvent.setup();
-    await user.click(screen.getByText('Import trips'));
+    await user.click(screen.getByText('Import / export'));
     const add = screen.getByRole('button', { name: 'Add' });
     expect(add).toBeDisabled();
     await user.type(screen.getByLabelText('Trips, one per line'), 'nope');
@@ -74,7 +74,7 @@ describe('Summary', () => {
     const user = userEvent.setup();
     const confirm = vi.fn().mockReturnValueOnce(false);
     vi.stubGlobal('confirm', confirm);
-    await user.click(screen.getByText('Import trips'));
+    await user.click(screen.getByText('Import / export'));
     await user.click(screen.getByRole('button', { name: 'Clear all' }));
     expect(store.get().size).toBe(2);
     confirm.mockReturnValueOnce(true);
@@ -112,7 +112,7 @@ describe('keyboard shortcuts', () => {
     const { store } = renderApp();
     const user = userEvent.setup();
     store.toggle(t);
-    await user.click(screen.getByText('Import trips'));
+    await user.click(screen.getByText('Import / export'));
     await user.click(screen.getByLabelText('Trips, one per line'));
     await user.keyboard('{Control>}z{/Control}');
     expect(store.get().size).toBe(1);

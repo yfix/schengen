@@ -31,7 +31,7 @@ describe('App', () => {
   it('imports trips from text', async () => {
     const { store } = setup();
     const t = localToday();
-    await userEvent.click(screen.getByText('Import trips'));
+    await userEvent.click(screen.getByText('Import / export'));
     await userEvent.type(
       screen.getByLabelText('Trips, one per line'),
       `${toIso(t)} ${toIso(t + 2)}`,

@@ -6,6 +6,7 @@ import { analyze, visibleRange } from './engine/schengen';
 import { settings as defaultSettings, type Settings } from './settings';
 import { selectionStore, useHistory, useSelection, type SelectionStore } from './state/selection';
 import { useDragSelect } from './state/useDragSelect';
+import { useSharedLink } from './state/useSharedLink';
 import { useToday } from './state/useToday';
 
 type AppProps = { store?: SelectionStore; settings?: Settings };
@@ -18,6 +19,7 @@ const App = ({ store = selectionStore, settings = defaultSettings }: AppProps) =
   const today = useToday();
   const selected = useSelection(store);
   const history = useHistory(store);
+  useSharedLink(store);
   const range = useMemo(
     () => visibleRange(today, settings, settings.windowsAhead),
     [today, settings],
