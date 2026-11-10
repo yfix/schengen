@@ -79,7 +79,7 @@ Deviation: deploy stays on `npm run deploy` → `gh-pages` branch (that's what P
 - [x] Weekday header, `Intl.DateTimeFormat` month names, dark mode (+ locale week start, `?week=`).
 - a11y: `role="grid"`, `gridcell`, `aria-selected`, roving tabindex, arrows/Space/Shift+arrows.
 - [x] PWA offline (hand-written `public/sw.js`, no plugin) + build-time CSP meta.
-- Optional: ICS export; reminder when the allowance resets.
+- [x] Optional: ICS export (trips as all-day events); reminder when the allowance resets — not done.
 
 ### PR order
 

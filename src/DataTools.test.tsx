@@ -46,10 +46,29 @@ describe('JSON export/import', () => {
     expect(screen.getByText('Exported 2 days')).toBeInTheDocument();
   });
 
+  it('downloads the trips as an iCalendar file', async () => {
+    withDays([t, t + 1]);
+    const user = await open();
+    const blobs: Blob[] = [];
+    vi.stubGlobal(
+      'URL',
+      Object.assign(URL, {
+        createObjectURL: (b: Blob) => (blobs.push(b), 'blob:x'),
+        revokeObjectURL: vi.fn(),
+      }),
+    );
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    await user.click(screen.getByRole('button', { name: 'Export .ics' }));
+    expect(blobs[0]!.type).toBe('text/calendar');
+    expect(await blobs[0]!.text()).toContain(`DTSTART;VALUE=DATE:${toIso(t).replaceAll('-', '')}`);
+    expect(screen.getByText('Exported calendar')).toBeInTheDocument();
+  });
+
   it('disables export and share with nothing marked', async () => {
     renderApp();
     await open();
     expect(screen.getByRole('button', { name: 'Export JSON' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Export .ics' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Share link' })).toBeDisabled();
   });
 
