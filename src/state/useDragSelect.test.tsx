@@ -67,11 +67,12 @@ describe('drag select', () => {
   });
 
   it('does not select days older than the window', async () => {
-    const { store, cell } = setup();
+    const { store, cell, container } = setup();
+    const first = container.querySelector<HTMLElement>('[data-ord]')!;
     await userEvent.pointer([
       { keys: '[MouseLeft>]', target: cell(t - 170) },
-      { target: cell(t - 200) },
-      { keys: '[/MouseLeft]', target: cell(t - 200) },
+      { target: first },
+      { keys: '[/MouseLeft]', target: first },
     ]);
     expect(Math.min(...store.get())).toBe(t - 179);
     expect(store.get().size).toBe(10);
