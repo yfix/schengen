@@ -41,7 +41,7 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 
 - `src/engine/dates.ts` — days as integer ordinals (`Ord`, days since epoch from local Y/M/D); `parseIso`/`toIso`, `localToday`. No `Date` math elsewhere.
 - `src/engine/schengen.ts` — pure calculation: `analyze(selected, from, to, rules)` → `count(day)` (days in the window ending that day, prefix sums), `remaining`, `stayFrom(day)` (longest consecutive stay entering that day, binary search), `overstays`; `earliestEntry`, `visibleRange`. Tested against a brute-force oracle — keep that test passing.
-- `src/engine/ranges.ts` — parses pasted trips (`YYYY-MM-DD YYYY-MM-DD` per line).
+- `src/engine/ranges.ts` — parses pasted trips (`YYYY-MM-DD YYYY-MM-DD` per line); `toTrips` groups selected days into `{ start, end }` runs.
 - `src/state/selection.ts` — external store (`useSyncExternalStore`) of selected `Ord`s, persisted as sorted ISO strings under `schengen/v2/days`; `migrate()` reads the legacy `schengen/selectedDates`. Syncs across tabs. **Any storage-shape change needs a new versioned key + migration + test.**
 - `src/state/storage.ts` — guarded localStorage JSON helpers. `src/state/useToday.ts` — today that rolls over at local midnight.
 - `src/settings.ts` — validated URL params → `{ window, max, windowsAhead }`.
@@ -50,6 +50,7 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 - Undo/redo live in the selection store (`undo`, `redo`, `useHistory`); Ctrl/Cmd+Z, Ctrl+Shift+Z / Ctrl+Y.
 - `src/Calendar.tsx` — Monday-first grid, weekday header, month labels, memoized `Day` cells with `data-ord`; small number = `stayFrom` for unselected future days; `Day-Over` red, `Day-Blocked` dimmed (still clickable: warn, don't block).
 - `src/Summary.tsx` — used/left today, stay-until or earliest entry, planned days, overstay alert, import trips / clear all. Shown on mobile as a compact header.
+- `src/TripList.tsx` — collapsible list of trips derived from the selection; edit (date inputs, entry ≥ first relevant day) or delete via `store.replaceRange` (undoable).
 - `scripts/smoke.mjs` — Playwright smoke test.
 - Tests sit next to the code (`*.test.ts[x]`): engine (`dates`, `ranges`, `schengen` + oracle), `storage`, `selection` (migration, undo/redo, cross-tab), `useToday`, `useDragSelect`, `settings`, `format`, `Summary`, `App`.
 - `run`, `compose.yaml`, `docker/` — Docker dev env: image `node:<.nvmrc>` + Playwright Chromium (version read from `package-lock.json`), `node_modules` in a named volume, entrypoint reruns `npm ci` when the lockfile hash changes. `.github/workflows/docker.yml` checks it on PRs touching those files.
