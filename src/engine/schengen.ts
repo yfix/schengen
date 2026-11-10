@@ -51,12 +51,19 @@ export const analyze = (selected: ReadonlySet<Ord>, from: Ord, to: Ord, rules: R
   const stayFrom = (day: Ord) => {
     const cached = stayCache.get(day);
     if (cached !== undefined) return cached;
-    let lo = 0;
-    let hi = max;
-    while (lo < hi) {
-      const mid = (lo + hi + 1) >> 1;
-      if (fits(day, mid)) lo = mid;
-      else hi = mid - 1;
+    const prev = stayCache.get(day - 1);
+    let lo: number;
+    if (prev !== undefined) {
+      lo = Math.max(prev - 1, 0);
+      while (lo < max && fits(day, lo + 1)) lo++;
+    } else {
+      lo = 0;
+      let hi = max;
+      while (lo < hi) {
+        const mid = (lo + hi + 1) >> 1;
+        if (fits(day, mid)) lo = mid;
+        else hi = mid - 1;
+      }
     }
     stayCache.set(day, lo);
     return lo;

@@ -9,7 +9,8 @@ Where the project stands, for the next person or AI session. Plans live in `docs
 - UI: drag across days to mark or clear a range (long-press on touch, Shift+click extends, Esc cancels, live preview of the summary), undo/redo; click a day to toggle it (any day in the window, incl. overstay days); small number on future days = longest stay entering that day; overstay days red with an alert; summary (used, left, stay-until / earliest entry, planned) also on mobile; weekday header; scrolls to today; import trips (paste ranges) + clear all; trip list with edit/delete; JSON export/import and share link (`#t=` hash, confirm before adding); trip planner (stay from a date, earliest entry for N days); day tooltip shows days used in the window. Hardcoded personal trips removed.
 - Deploy: automatic on push to `master` (CI `deploy` job after checks pass → `actions/deploy-pages`). Pages source must be "GitHub Actions".
 - Local dev: Node only in Docker via `./run` (`compose.yaml`, `docker/`); no host Node.
-- Next (agreed Nov 10): O(n) `stayFrom` sweep → keyboard grid; then Intl/dark mode, PWA, ICS.
+- Perf: `stayFrom` for the whole calendar 33 ms → 5 ms (empty selection) via the `stay(d) ≥ stay(d−1) − 1` bound.
+- Next (agreed Nov 10): keyboard grid; then Intl/dark mode, PWA, ICS.
 
 ## History
 

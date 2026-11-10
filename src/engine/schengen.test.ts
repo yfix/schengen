@@ -73,6 +73,26 @@ describe('analyze', () => {
     }
   });
 
+  it('gives the same stays whatever order days are queried in', () => {
+    const small: Rules = { window: 20, max: 10 };
+    let seed = 11;
+    const rand = () => (seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31;
+    for (let run = 0; run < 30; run++) {
+      const density = 0.1 + (run % 5) * 0.1;
+      const sel = new Set(span(981, 120).filter(() => rand() < density));
+      const up = analyze(sel, 1000, 1080, small);
+      const down = analyze(sel, 1000, 1080, small);
+      const days = span(1000, 61);
+      const asc = days.map((d) => up.stayFrom(d));
+      const desc = [...days]
+        .reverse()
+        .map((d) => down.stayFrom(d))
+        .reverse();
+      expect(asc).toEqual(desc);
+      expect(asc).toEqual(days.map((d) => naiveStay(sel, d, small)));
+    }
+  });
+
   it('allows a full stay with nothing selected', () => {
     const a = analyze(new Set(), T - 10, T + 400, rules);
     expect(a.count(T)).toBe(0);
