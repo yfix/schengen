@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent } from 'react';
 import { localToday, toIso, type Ord } from './engine/dates';
+import { toIcs } from './engine/ics';
 import { parseRanges } from './engine/ranges';
 import type { Rules } from './engine/schengen';
 import { parseExport, shareUrl, toExport } from './engine/share';
@@ -8,8 +9,8 @@ import type { SelectionStore } from './state/selection';
 
 type DataToolsProps = { store: SelectionStore; selected: ReadonlySet<Ord>; rules: Rules };
 
-const download = (name: string, text: string) => {
-  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+const download = (name: string, text: string, type: string) => {
+  const url = URL.createObjectURL(new Blob([text], { type }));
   const a = document.createElement('a');
   a.href = url;
   a.download = name;
@@ -37,8 +38,14 @@ const DataTools = ({ store, selected, rules }: DataToolsProps) => {
     download(
       `schengen-${toIso(localToday())}.json`,
       `${JSON.stringify(toExport(selected, rules), null, 2)}\n`,
+      'application/json',
     );
     setMessage(`Exported ${plural(selected.size, 'day')}`);
+  };
+
+  const exportIcs = () => {
+    download(`schengen-${toIso(localToday())}.ics`, toIcs(selected), 'text/calendar');
+    setMessage('Exported calendar');
   };
 
   const importJson = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -89,6 +96,9 @@ const DataTools = ({ store, selected, rules }: DataToolsProps) => {
       <div className="Summary-Actions">
         <button type="button" onClick={exportJson} disabled={!selected.size}>
           Export JSON
+        </button>
+        <button type="button" onClick={exportIcs} disabled={!selected.size}>
+          Export .ics
         </button>
         <label className="Summary-File">
           Import JSON

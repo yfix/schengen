@@ -13,7 +13,8 @@ Where the project stands, for the next person or AI session. Plans live in `docs
 - Keyboard: calendar is a roving-tabindex grid (arrows, Space, Shift+arrows, Home/End, PageUp/PageDown), visible focus ring.
 - Locale: week starts on the locale's first day (`?week=` overrides); month/day names via `Intl`. Dark mode follows the OS (`prefers-color-scheme`), colors are CSS variables.
 - PWA: installable manifest, offline via `public/sw.js` (smoke checks an offline reload); strict CSP meta in the build.
-- Next: ICS export.
+- Calendar export: `.ics` with one all-day event per trip.
+- Next: nothing agreed. Ideas: reminder when the allowance resets, per-country notes.
 
 ## History
 
