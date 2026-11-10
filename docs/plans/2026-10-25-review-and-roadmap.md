@@ -27,7 +27,7 @@ Starting point (upstream code @ e1c4697): CRA (react-scripts 5), React 16, plain
 - [x] Vitest + Testing Library, ESLint flat + Prettier, CI (PR1)
 - [x] Manifest/meta defaults, dead service worker (PR1)
 - [x] Engine entangled with the React hook; no calculation tests (PR2)
-- [ ] a11y: div+onClick, no keyboard, no roles/labels, no weekday header; color-only state
+- [x] a11y: div+onClick, no keyboard, no roles/labels, no weekday header; color-only state (keyboard grid: roving tabindex, arrows/Space/Shift+arrows/Home/End/PageUp/PageDown)
 
 ## Roadmap
 

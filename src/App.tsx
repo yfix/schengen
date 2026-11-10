@@ -6,6 +6,7 @@ import { analyze, visibleRange } from './engine/schengen';
 import { settings as defaultSettings, type Settings } from './settings';
 import { selectionStore, useHistory, useSelection, type SelectionStore } from './state/selection';
 import { useDragSelect } from './state/useDragSelect';
+import { useGridKeys } from './state/useGridKeys';
 import { useSharedLink } from './state/useSharedLink';
 import { useToday } from './state/useToday';
 
@@ -29,6 +30,14 @@ const App = ({ store = selectionStore, settings = defaultSettings }: AppProps) =
     min: range.firstRelevant,
     max: range.to,
     onCommit: store.set,
+  });
+  const keys = useGridKeys({
+    today,
+    min: range.firstRelevant,
+    max: range.to,
+    listRef: drag.listRef,
+    onToggle: store.toggle,
+    onAdd: store.add,
   });
   const shown = drag.preview ?? selected;
   const analysis = useMemo(
@@ -73,6 +82,8 @@ const App = ({ store = selectionStore, settings = defaultSettings }: AppProps) =
         range={drag.range}
         listRef={drag.listRef}
         handlers={drag.handlers}
+        focus={keys.focus}
+        keys={{ onKeyDown: keys.onKeyDown, onFocus: keys.onFocus }}
       />
     </div>
   );

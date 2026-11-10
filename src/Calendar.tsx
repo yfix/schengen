@@ -1,4 +1,11 @@
-import { memo, useEffect, type PointerEventHandler, type RefObject } from 'react';
+import {
+  memo,
+  useEffect,
+  type FocusEventHandler,
+  type KeyboardEventHandler,
+  type PointerEventHandler,
+  type RefObject,
+} from 'react';
 import './Calendar.css';
 import { fromOrd, type Ord } from './engine/dates';
 import type { Analysis } from './engine/schengen';
@@ -15,6 +22,7 @@ type DayState = {
   used: number | null;
   max: number;
   inRange: boolean;
+  focusable: boolean;
 };
 
 type DragHandlers = {
@@ -35,6 +43,11 @@ type CalendarProps = {
   range: DragRange | null;
   listRef: RefObject<HTMLDivElement | null>;
   handlers: DragHandlers;
+  focus: Ord;
+  keys: {
+    onKeyDown: KeyboardEventHandler<HTMLElement>;
+    onFocus: FocusEventHandler<HTMLElement>;
+  };
 };
 
 const label = (s: DayState) => {
@@ -65,6 +78,7 @@ const Day = memo(function Day(state: DayState) {
       aria-label={label(state)}
       title={label(state)}
       data-ord={state.ord}
+      tabIndex={state.focusable ? 0 : -1}
       className={classes.join(' ')}
     >
       {date}
@@ -84,6 +98,8 @@ const Calendar = ({
   range,
   listRef,
   handlers,
+  focus,
+  keys,
 }: CalendarProps) => {
   useEffect(() => {
     listRef.current?.querySelector('.Day-Today')?.scrollIntoView({ block: 'center' });
@@ -104,6 +120,7 @@ const Calendar = ({
       used: ord < firstRelevant ? null : analysis.count(ord),
       max,
       inRange: range !== null && ord >= range.lo && ord <= range.hi,
+      focusable: ord === focus,
     };
     if (fromOrd(ord).date === 1)
       cells.push(
@@ -128,10 +145,15 @@ const Calendar = ({
         className={range ? 'Calendar-List Calendar-Dragging' : 'Calendar-List'}
         role="group"
         aria-label="Calendar"
+        aria-describedby="Calendar-Keys"
         {...handlers}
+        {...keys}
       >
         {cells}
       </div>
+      <p id="Calendar-Keys" className="Calendar-Hint">
+        Arrows move, Space marks, Shift+arrows mark a range, PageUp/PageDown change month.
+      </p>
     </div>
   );
 };

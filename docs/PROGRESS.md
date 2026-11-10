@@ -10,7 +10,8 @@ Where the project stands, for the next person or AI session. Plans live in `docs
 - Deploy: automatic on push to `master` (CI `deploy` job after checks pass → `actions/deploy-pages`). Pages source must be "GitHub Actions".
 - Local dev: Node only in Docker via `./run` (`compose.yaml`, `docker/`); no host Node.
 - Perf: `stayFrom` for the whole calendar 33 ms → 5 ms (empty selection) via the `stay(d) ≥ stay(d−1) − 1` bound.
-- Next (agreed Nov 10): keyboard grid; then Intl/dark mode, PWA, ICS.
+- Keyboard: calendar is a roving-tabindex grid (arrows, Space, Shift+arrows, Home/End, PageUp/PageDown), visible focus ring.
+- Next: Intl locale (week start) + dark mode, real PWA/offline + CSP, ICS export.
 
 ## History
 

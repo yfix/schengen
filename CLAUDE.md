@@ -49,6 +49,7 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 - `src/settings.ts` — validated URL params → `{ window, max, windowsAhead }`.
 - `src/App.tsx` — wires today + selection → `analyze` → `Summary` + `Calendar`; prunes days older than the window.
 - `src/state/useDragSelect.ts` — pointer-event drag select: mouse drags at once (pointer capture), touch needs a 300 ms long-press (else the list scrolls), Shift+click extends from the last day, Esc cancels, auto-scroll near the edges. The preview set feeds `analyze` live; one store write per gesture. `applyRange` is the pure part.
+- `src/state/useGridKeys.ts` — keyboard grid: roving `tabIndex` (today by default), arrows ±1/±7, Home/End week edges, PageUp/PageDown month (clamped to month end), Space/Enter toggle, Shift+arrows add the range; clamped to `[firstRelevant, to]`.
 - Undo/redo live in the selection store (`undo`, `redo`, `useHistory`); Ctrl/Cmd+Z, Ctrl+Shift+Z / Ctrl+Y.
 - `src/Calendar.tsx` — Monday-first grid, weekday header, month labels, memoized `Day` cells with `data-ord`; small number = `stayFrom` for unselected future days; `title`/`aria-label` also say days used in the window; `Day-Over` red, `Day-Blocked` dimmed (still clickable: warn, don't block).
 - `src/Summary.tsx` — used/left today, stay-until or earliest entry, planned days, overstay alert, the Import / export panel (`src/DataTools.tsx`: paste trips, clear all, JSON export/import, copy share link). Shown on mobile as a compact header.
