@@ -1,0 +1,29 @@
+name: Docker dev env
+
+on:
+  pull_request:
+    paths:
+      - compose.yaml
+      - docker/**
+      - run
+      - .nvmrc
+      - package-lock.json
+      - .github/workflows/docker.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v7
+      - run: ./run npm run check

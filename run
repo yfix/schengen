@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+cd "$(dirname "$0")"
+
+NODE_VERSION=$(tr -d ' \n' < .nvmrc)
+PLAYWRIGHT_VERSION=$(sed -n '/"node_modules\/playwright": {/,/}/ s/.*"version": "\([^"]*\)".*/\1/p' package-lock.json)
+export NODE_VERSION PLAYWRIGHT_VERSION
+
+[ $# -gt 0 ] || set -- bash
+
+case " $* " in
+  *" run dev "* | *" run preview "*) ports=--service-ports ;;
+  *) ports= ;;
+esac
+
+tty=
+[ -t 0 ] && [ -t 1 ] || tty=-T
+
+exec docker compose run --rm --build --quiet-build $tty $ports node "$@"
