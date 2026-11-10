@@ -42,14 +42,16 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 - `src/engine/dates.ts` — days as integer ordinals (`Ord`, days since epoch from local Y/M/D); `parseIso`/`toIso`, `localToday`. No `Date` math elsewhere.
 - `src/engine/schengen.ts` — pure calculation: `analyze(selected, from, to, rules)` → `count(day)` (days in the window ending that day, prefix sums), `remaining`, `stayFrom(day)` (longest consecutive stay entering that day, binary search), `overstays`; `earliestEntry`, `visibleRange`. Tested against a brute-force oracle — keep that test passing.
 - `src/engine/ranges.ts` — parses pasted trips (`YYYY-MM-DD YYYY-MM-DD` per line); `toTrips` groups selected days into `{ start, end }` runs.
+- `src/engine/share.ts` — share-link hash `#t=YYYYMMDD-YYYYMMDD.YYYYMMDD` (`encodeTrips`/`decodeTrips`/`readShareHash`) and the JSON export file `{ app, version: 1, rules, trips }` (`toExport`/`parseExport`); both cap at 10k days. **Changing either format needs a new version + a reader for the old one.**
 - `src/state/selection.ts` — external store (`useSyncExternalStore`) of selected `Ord`s, persisted as sorted ISO strings under `schengen/v2/days`; `migrate()` reads the legacy `schengen/selectedDates`. Syncs across tabs. **Any storage-shape change needs a new versioned key + migration + test.**
+- `src/state/useSharedLink.ts` — on load, a `#t=` hash asks to add those days, then strips the hash.
 - `src/state/storage.ts` — guarded localStorage JSON helpers. `src/state/useToday.ts` — today that rolls over at local midnight.
 - `src/settings.ts` — validated URL params → `{ window, max, windowsAhead }`.
 - `src/App.tsx` — wires today + selection → `analyze` → `Summary` + `Calendar`; prunes days older than the window.
 - `src/state/useDragSelect.ts` — pointer-event drag select: mouse drags at once (pointer capture), touch needs a 300 ms long-press (else the list scrolls), Shift+click extends from the last day, Esc cancels, auto-scroll near the edges. The preview set feeds `analyze` live; one store write per gesture. `applyRange` is the pure part.
 - Undo/redo live in the selection store (`undo`, `redo`, `useHistory`); Ctrl/Cmd+Z, Ctrl+Shift+Z / Ctrl+Y.
 - `src/Calendar.tsx` — Monday-first grid, weekday header, month labels, memoized `Day` cells with `data-ord`; small number = `stayFrom` for unselected future days; `Day-Over` red, `Day-Blocked` dimmed (still clickable: warn, don't block).
-- `src/Summary.tsx` — used/left today, stay-until or earliest entry, planned days, overstay alert, import trips / clear all. Shown on mobile as a compact header.
+- `src/Summary.tsx` — used/left today, stay-until or earliest entry, planned days, overstay alert, the Import / export panel (`src/DataTools.tsx`: paste trips, clear all, JSON export/import, copy share link). Shown on mobile as a compact header.
 - `src/TripList.tsx` — collapsible list of trips derived from the selection; edit (date inputs, entry ≥ first relevant day) or delete via `store.replaceRange` (undoable).
 - `scripts/smoke.mjs` — Playwright smoke test.
 - Tests sit next to the code (`*.test.ts[x]`): engine (`dates`, `ranges`, `schengen` + oracle), `storage`, `selection` (migration, undo/redo, cross-tab), `useToday`, `useDragSelect`, `settings`, `format`, `Summary`, `App`.
