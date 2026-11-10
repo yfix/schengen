@@ -1,6 +1,6 @@
 # Schengen calculator — working notes for Claude
 
-Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks days spent (or planned) in the Schengen area and sees how many days are left. React 19 + Vite 8 + Vitest (happy-dom) + ESLint 10, Node 24 LTS (`.nvmrc`; `engine-strict` rejects unsupported Node like 25), auto-deployed to GitHub Pages from `master` by CI. Yuri runs Node only in Docker (`./run`, macOS + OrbStack); never tell him to install Node/nvm/brew. Solo dev (Yuri) + AI. Fork of `termosa/schengen.me.st` (remote `upstream`); default branch is **`master`**.
+Schengen 90/180 short-stay calculator: a scrolling calendar where the user marks days spent (or planned) in the Schengen area and sees how many days are left. React 19 + Vite 8 + TypeScript 6 + Vitest (happy-dom) + ESLint 10 (type-aware `strictTypeChecked`), Node 24 LTS (`.nvmrc`; `engine-strict` rejects unsupported Node like 25), auto-deployed to GitHub Pages from `master` by CI. Yuri runs Node only in Docker (`./run`, macOS + OrbStack); never tell him to install Node/nvm/brew. Solo dev (Yuri) + AI. Fork of `termosa/schengen.me.st` (remote `upstream`); default branch is **`master`**.
 
 **Catch up here first:** `docs/PROGRESS.md` (where things stand; PR history = `git log --oneline master`) and `docs/plans/` (review findings + the roadmap with bug IDs B1–B11).
 
@@ -24,7 +24,7 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 4. `npm run smoke` (~5 s) — boots the built app in headless Chromium, clicks today, drags 9 days with the mouse (desktop), fails on any page/console error, writes `.smoke/desktop.png`. `--mobile` for a 390×844 touch viewport. Prints `skipped` when Chromium isn't installed. Cloud sandbox (Playwright CDN blocked): `npm i --prefix /tmp/chr @sparticuz/chromium`, unpack once with `node -e "require('/tmp/chr/node_modules/@sparticuz/chromium').default.executablePath()"`, then `CHROMIUM_PATH=/tmp/chromium npm run smoke`.
 5. Look at `.smoke/*.png` — only when the change is visual.
 
-`npm run check` = rungs 1–4.
+`npm run check` = rungs 1–4, with tests under coverage thresholds (95% statements/lines/functions, 90% branches; `npm run test:coverage`, HTML report in `coverage/`).
 
 ## Commands
 
@@ -51,6 +51,7 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 - `src/Calendar.tsx` — Monday-first grid, weekday header, month labels, memoized `Day` cells with `data-ord`; small number = `stayFrom` for unselected future days; `Day-Over` red, `Day-Blocked` dimmed (still clickable: warn, don't block).
 - `src/Summary.tsx` — used/left today, stay-until or earliest entry, planned days, overstay alert, import trips / clear all. Shown on mobile as a compact header.
 - `scripts/smoke.mjs` — Playwright smoke test.
+- Tests sit next to the code (`*.test.ts[x]`): engine (`dates`, `ranges`, `schengen` + oracle), `storage`, `selection` (migration, undo/redo, cross-tab), `useToday`, `useDragSelect`, `settings`, `format`, `Summary`, `App`.
 - `run`, `compose.yaml`, `docker/` — Docker dev env: image `node:<.nvmrc>` + Playwright Chromium (version read from `package-lock.json`), `node_modules` in a named volume, entrypoint reruns `npm ci` when the lockfile hash changes. `.github/workflows/docker.yml` checks it on PRs touching those files.
 - `.github/workflows/ci.yml` — `check` job on PRs and `master`; on `master` it also uploads `dist/` and the `deploy` job publishes to Pages.
 - `src/test/renderApp.tsx` — shared test helper (`renderApp(store?)` → `{ store, cell(ord), … }`, `sorted`).
@@ -59,7 +60,7 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 
 - The rule: on any day, the days spent in the window `[day − 179, day]` must be ≤ 90 (entry and exit days count). Defaults come from `settings.ts`; never hardcode 90/180 elsewhere.
 - Dates are local calendar days. Never parse `YYYY-MM-DD` with `new Date(str)` (that is UTC midnight → off-by-one west of UTC).
-- TypeScript `strict` + `noUncheckedIndexedAccess`. Tests run with `TZ=America/Los_Angeles` to catch UTC-parsing bugs.
+- TypeScript `strict` + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` + `verbatimModuleSyntax` + `erasableSyntaxOnly` (no enums/namespaces/parameter properties). Tests run with `TZ=America/Los_Angeles` to catch UTC-parsing bugs.
 - Vite `base: './'` so the build works under `yfix.github.io/schengen/`.
 - Branch per PR from `master`; never commit to `master`. PR description: what changed + how it was checked.
 - **Keep the docs current, inside the same PR:** update the State section of `docs/PROGRESS.md` and the code map above when the picture changes; tick items in `docs/plans/` when built. A design doc written in chat gets saved as `docs/plans/YYYY-MM-DD-<topic>.md` in the next PR.
