@@ -2,14 +2,14 @@
 
 Where the project stands, for the next person or AI session. Plans live in `docs/plans/`; working rules in `CLAUDE.md`.
 
-## State (Oct 25, 2026)
+## State (Nov 10, 2026)
 
-- Toolchain: Node 24 LTS (`.nvmrc`, `engine-strict`), Vite 8, React 19, TypeScript 6 (strictest flags), Vitest + happy-dom with v8 coverage thresholds, ESLint 10 with type-aware typescript-eslint, Prettier, no deprecated packages, CI on every PR (typecheck, lint, test, build, Playwright smoke desktop + mobile).
+- Toolchain: Node 24 LTS (`.nvmrc`, `engine-strict`), Vite 8, React 19, TypeScript 6 (strictest flags), Vitest + happy-dom with v8 coverage thresholds, ESLint 10 with type-aware typescript-eslint, Prettier, no deprecated packages, CI on every PR (typecheck, lint, tests under coverage gate, build, Playwright smoke desktop + mobile); workflows least-privilege (`contents: read`, no persisted checkout token); Dependabot weekly for npm + actions (grouped minor/patch).
 - All TypeScript. Pure engine in `src/engine/` (ordinal days, prefix sums, brute-force-oracle test); selection store with v2 storage + legacy migration; bugs B1–B11 fixed (see `docs/plans/2026-10-25-review-and-roadmap.md`).
 - UI: drag across days to mark or clear a range (long-press on touch, Shift+click extends, Esc cancels, live preview of the summary), undo/redo; click a day to toggle it (any day in the window, incl. overstay days); small number on future days = longest stay entering that day; overstay days red with an alert; summary (used, left, stay-until / earliest entry, planned) also on mobile; weekday header; scrolls to today; import trips (paste ranges) + clear all. Hardcoded personal trips removed.
 - Deploy: automatic on push to `master` (CI `deploy` job after checks pass → `actions/deploy-pages`). Pages source must be "GitHub Actions".
 - Local dev: Node only in Docker via `./run` (`compose.yaml`, `docker/`); no host Node.
-- Next: the UX batch (phase 4): trip list, planner, keyboard/a11y, share link, PWA.
+- Next (agreed Nov 10): trip list edit/delete → JSON export/import + share link → per-day tooltip + stay planner → O(n) `stayFrom` sweep → keyboard grid; then Intl/dark mode, PWA, ICS.
 
 ## History
 
