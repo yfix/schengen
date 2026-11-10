@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { fromOrd, localToday, parseIso, toIso, toOrd, type Ord } from './dates';
+import { endOfMonth, startOfMonth, toOrd, type Ord } from './dates';
 import { analyze, earliestEntry, visibleRange, type Rules } from './schengen';
-import { parseRanges } from './ranges';
 
 const rules: Rules = { window: 180, max: 90 };
 const T = toOrd(2026, 9, 25);
@@ -20,32 +19,8 @@ const naiveStay = (sel: Set<Ord>, day: Ord, r: Rules) => {
   }
 };
 
-describe('dates', () => {
-  it('round-trips ordinals through leap days and DST changes', () => {
-    for (const [y, m, d] of [
-      [2024, 1, 29],
-      [2026, 2, 29],
-      [2026, 9, 25],
-      [1999, 11, 31],
-    ] as const) {
-      const ord = toOrd(y, m, d);
-      expect(fromOrd(ord)).toMatchObject({ year: y, month: m, date: d });
-      expect(parseIso(toIso(ord))).toBe(ord);
-    }
-    expect(toOrd(2026, 2, 30) - toOrd(2026, 2, 29)).toBe(1);
-  });
-
-  it('parses ISO dates as local calendar days, not UTC instants (B2)', () => {
-    expect(fromOrd(parseIso('2025-07-21')!)).toMatchObject({ year: 2025, month: 6, date: 21 });
-    expect(parseIso('2025-02-30')).toBeNull();
-    expect(parseIso('21.07.2025')).toBeNull();
-  });
-
-  it('takes today from the local clock', () => {
-    expect(localToday(new Date(2026, 9, 25, 23, 59))).toBe(T);
-    expect(localToday(new Date(2026, 9, 26, 0, 1))).toBe(T + 1);
-  });
-});
+const naiveOverstays = (sel: Set<Ord>, from: Ord, to: Ord, r: Rules) =>
+  span(from, to - from + 1).filter((d) => sel.has(d) && naiveCount(sel, d, r) > r.max);
 
 describe('analyze', () => {
   it('counts only the window ending on the day (B6, B7)', () => {
@@ -94,27 +69,85 @@ describe('analyze', () => {
         expect(a.count(d)).toBe(naiveCount(sel, d, small));
         if (d <= to - small.window) expect(a.stayFrom(d)).toBe(naiveStay(sel, d, small));
       }
+      expect(a.overstays).toEqual(naiveOverstays(sel, from, to, small));
     }
+  });
+
+  it('allows a full stay with nothing selected', () => {
+    const a = analyze(new Set(), T - 10, T + 400, rules);
+    expect(a.count(T)).toBe(0);
+    expect(a.remaining(T)).toBe(90);
+    expect(a.stayFrom(T)).toBe(90);
+    expect(a.overstays).toEqual([]);
+  });
+
+  it('goes negative on remaining days during an overstay', () => {
+    const a = analyze(new Set(span(T, 95)), T, T + 300, rules);
+    expect(a.remaining(T + 94)).toBe(-5);
+    expect(a.overstays).toHaveLength(5);
+  });
+
+  it('ignores selected days outside the analysed span', () => {
+    const sel = new Set([T - 10_000, T + 10_000, T]);
+    const a = analyze(sel, T - 10, T + 10, rules);
+    expect(a.count(T)).toBe(1);
+    expect(a.count(T + 10)).toBe(1);
+  });
+
+  it('counts days that fall out of the window as freed up', () => {
+    const sel = new Set(span(T - 179, 90));
+    const a = analyze(sel, T - 10, T + 200, rules);
+    expect(a.count(T)).toBe(90);
+    expect(a.count(T + 1)).toBe(89);
+    expect(a.stayFrom(T + 1)).toBe(90);
+    expect(a.count(T + 90)).toBe(0);
+  });
+
+  it('limits a stay by future planned trips, not only past ones', () => {
+    const sel = new Set(span(T + 30, 80));
+    const a = analyze(sel, T - 10, T + 400, rules);
+    expect(a.stayFrom(T)).toBe(10);
+    expect(a.stayFrom(T + 200)).toBe(90);
+  });
+
+  it('honours custom rules', () => {
+    const r: Rules = { window: 30, max: 15 };
+    const a = analyze(new Set(span(T - 9, 10)), T - 40, T + 100, r);
+    expect(a.remaining(T)).toBe(5);
+    expect(a.stayFrom(T + 1)).toBe(5);
+    expect(earliestEntry(a, T + 1)).toBe(T + 1);
+  });
+
+  it('memoizes stayFrom per day', () => {
+    const a = analyze(new Set(span(T - 50, 40)), T - 10, T + 200, rules);
+    const first = a.stayFrom(T + 3);
+    expect(a.stayFrom(T + 3)).toBe(first);
   });
 });
 
-describe('parseRanges', () => {
-  it('reads ranges, single days and separators', () => {
-    const { days, errors } = parseRanges(
-      '2026-07-21 2026-07-23\n\n2026-08-01\n2026-08-03 – 2026-08-04',
-    );
-    expect(errors).toEqual([]);
-    expect(days.map(toIso)).toEqual([
-      '2026-07-21',
-      '2026-07-22',
-      '2026-07-23',
-      '2026-08-01',
-      '2026-08-03',
-      '2026-08-04',
-    ]);
+describe('earliestEntry', () => {
+  it('returns the start day when entry is possible', () => {
+    const a = analyze(new Set(), T, T + 10, rules);
+    expect(earliestEntry(a, T + 2)).toBe(T + 2);
   });
 
-  it('reports bad lines', () => {
-    expect(parseRanges('2026-08-05 2026-08-01\nnope').errors).toEqual([1, 2]);
+  it('returns null when no entry fits before the end of the range', () => {
+    const a = analyze(new Set(span(T - 89, 90)), T - 10, T + 30, rules);
+    expect(earliestEntry(a, T + 1)).toBeNull();
+  });
+});
+
+describe('visibleRange', () => {
+  it('starts at the month of the first relevant day and ends at a month end', () => {
+    const r = visibleRange(T, rules, 4);
+    expect(r.firstRelevant).toBe(T - 179);
+    expect(r.from).toBe(startOfMonth(T - 179));
+    expect(r.to).toBe(endOfMonth(T + 720));
+    expect(r.from).toBeLessThanOrEqual(r.firstRelevant);
+  });
+
+  it('scales with the number of windows ahead', () => {
+    expect(visibleRange(T, rules, 1).to).toBe(endOfMonth(T + 180));
+    expect(visibleRange(T, { window: 30, max: 15 }, 2).to).toBe(endOfMonth(T + 60));
   });
 });

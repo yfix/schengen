@@ -10,11 +10,11 @@ const safeStorage = (): Storage | null => {
 
 export const storageKey = (key: string) => `${PREFIX}/${key}`;
 
-export const readJson = <T>(key: string): T | undefined => {
+export const readJson = (key: string): unknown => {
   const raw = safeStorage()?.getItem(storageKey(key));
   if (raw == null) return undefined;
   try {
-    return JSON.parse(raw) as T;
+    return JSON.parse(raw) as unknown;
   } catch {
     return undefined;
   }

@@ -77,7 +77,7 @@ describe('drag select', () => {
     expect(store.get().size).toBe(10);
   });
 
-  it('touch: a tap toggles, a long-press starts a drag', () => {
+  it('touch: a tap toggles, a long-press starts a drag', async () => {
     vi.useFakeTimers();
     try {
       const { store, cell } = setup();
@@ -87,14 +87,14 @@ describe('drag select', () => {
       expect(sorted(store.get())).toEqual([t]);
 
       fireEvent.pointerDown(cell(t + 2), touch);
-      act(() => vi.advanceTimersByTime(350));
+      await act(() => vi.advanceTimersByTime(350));
       fireEvent.pointerMove(cell(t + 4), touch);
       fireEvent.pointerUp(cell(t + 4), touch);
       expect(sorted(store.get())).toEqual([t, t + 2, t + 3, t + 4]);
 
       fireEvent.pointerDown(cell(t + 10), { ...touch, clientY: 0 });
       fireEvent.pointerMove(cell(t + 10), { ...touch, clientY: 40 });
-      act(() => vi.advanceTimersByTime(350));
+      await act(() => vi.advanceTimersByTime(350));
       fireEvent.pointerUp(cell(t + 10), touch);
       expect(store.get().has(t + 10)).toBe(false);
     } finally {
@@ -113,5 +113,63 @@ describe('drag select', () => {
     expect(store.get().size).toBe(0);
     await userEvent.keyboard('{Control>}{Shift>}z{/Shift}{/Control}');
     expect(store.get().size).toBe(3);
+  });
+});
+
+describe('drag gestures and the browser', () => {
+  const touch = { pointerType: 'touch', button: 0, pointerId: 3 };
+
+  it('blocks native scroll and the context menu only while a touch drag is live', async () => {
+    vi.useFakeTimers();
+    try {
+      const { cell, container } = setup();
+      const list = container.querySelector('.Calendar-List')!;
+      const fire = (type: string) =>
+        list.dispatchEvent(new Event(type, { bubbles: true, cancelable: true }));
+      expect(fire('touchmove')).toBe(true);
+      expect(fire('contextmenu')).toBe(true);
+      fireEvent.pointerDown(cell(t), touch);
+      expect(fire('contextmenu')).toBe(false);
+      await act(() => vi.advanceTimersByTime(350));
+      expect(fire('touchmove')).toBe(false);
+      fireEvent.pointerUp(cell(t), touch);
+      expect(fire('touchmove')).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('auto-scrolls near the bottom edge and extends the range', async () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] });
+    try {
+      const { store, cell, container } = setup();
+      const scroller = container.querySelector<HTMLElement>('.Calendar')!;
+      let top = 0;
+      Object.defineProperty(scroller, 'scrollTop', {
+        configurable: true,
+        get: () => top,
+        set: (v: number) => (top = v),
+      });
+      vi.spyOn(scroller, 'getBoundingClientRect').mockReturnValue(
+        DOMRect.fromRect({ x: 0, y: 0, width: 400, height: 500 }),
+      );
+      vi.spyOn(document, 'elementFromPoint').mockImplementation(() =>
+        top > 0 ? cell(t + 10) : cell(t + 1),
+      );
+      const mouse = { pointerType: 'mouse', button: 0, pointerId: 1, clientX: 10 };
+      fireEvent.pointerDown(cell(t), { ...mouse, clientY: 300 });
+      fireEvent.pointerMove(cell(t + 1), { ...mouse, clientY: 495 });
+      await act(() => vi.advanceTimersByTime(64));
+      expect(top).toBeGreaterThan(0);
+      expect(container.querySelectorAll('.Day-InRange')).toHaveLength(11);
+      fireEvent.pointerUp(cell(t + 10), mouse);
+      expect(store.get().size).toBe(11);
+      const settled = top;
+      await act(() => vi.advanceTimersByTime(64));
+      expect(top).toBe(settled);
+    } finally {
+      vi.useRealTimers();
+      vi.restoreAllMocks();
+    }
   });
 });
