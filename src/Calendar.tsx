@@ -44,6 +44,7 @@ type CalendarProps = {
   listRef: RefObject<HTMLDivElement | null>;
   handlers: DragHandlers;
   focus: Ord;
+  weekStart: number;
   keys: {
     onKeyDown: KeyboardEventHandler<HTMLElement>;
     onFocus: FocusEventHandler<HTMLElement>;
@@ -100,12 +101,13 @@ const Calendar = ({
   handlers,
   focus,
   keys,
+  weekStart,
 }: CalendarProps) => {
   useEffect(() => {
     listRef.current?.querySelector('.Day-Today')?.scrollIntoView({ block: 'center' });
   }, [listRef]);
 
-  const offset = (fromOrd(from).weekday + 6) % 7;
+  const offset = (fromOrd(from).weekday - weekStart + 7) % 7;
   const cells = [];
   for (let i = 0; i < offset; i++) cells.push(<div key={`pad-${i}`} className="Day Day-Empty" />);
   for (let ord = from; ord <= to; ord++) {
@@ -134,7 +136,7 @@ const Calendar = ({
   return (
     <div className="Calendar">
       <div className="Calendar-Weekdays" aria-hidden="true">
-        {weekdayNames.map((name) => (
+        {weekdayNames(weekStart).map((name) => (
           <div key={name} className="Weekday">
             {name}
           </div>

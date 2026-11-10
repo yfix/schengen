@@ -11,7 +11,8 @@ Where the project stands, for the next person or AI session. Plans live in `docs
 - Local dev: Node only in Docker via `./run` (`compose.yaml`, `docker/`); no host Node.
 - Perf: `stayFrom` for the whole calendar 33 ms → 5 ms (empty selection) via the `stay(d) ≥ stay(d−1) − 1` bound.
 - Keyboard: calendar is a roving-tabindex grid (arrows, Space, Shift+arrows, Home/End, PageUp/PageDown), visible focus ring.
-- Next: Intl locale (week start) + dark mode, real PWA/offline + CSP, ICS export.
+- Locale: week starts on the locale's first day (`?week=` overrides); month/day names via `Intl`. Dark mode follows the OS (`prefers-color-scheme`), colors are CSS variables.
+- Next: real PWA/offline + CSP, ICS export.
 
 ## History
 

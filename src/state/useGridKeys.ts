@@ -3,6 +3,7 @@ import { endOfMonth, fromOrd, toOrd, type Ord } from '../engine/dates';
 
 type Options = {
   today: Ord;
+  weekStart: number;
   min: Ord;
   max: Ord;
   listRef: RefObject<HTMLDivElement | null>;
@@ -16,8 +17,8 @@ const shiftMonth = (day: Ord, delta: number) => {
   return toOrd(year, month + delta, Math.min(date, last));
 };
 
-const target = (key: string, day: Ord): Ord | null => {
-  const weekday = (fromOrd(day).weekday + 6) % 7;
+const target = (key: string, day: Ord, weekStart: number): Ord | null => {
+  const weekday = (fromOrd(day).weekday - weekStart + 7) % 7;
   switch (key) {
     case 'ArrowLeft':
       return day - 1;
@@ -40,7 +41,7 @@ const target = (key: string, day: Ord): Ord | null => {
   }
 };
 
-export const useGridKeys = ({ today, min, max, listRef, onToggle, onAdd }: Options) => {
+export const useGridKeys = ({ today, weekStart, min, max, listRef, onToggle, onAdd }: Options) => {
   const [focus, setFocus] = useState<Ord | null>(null);
   const current = Math.min(Math.max(focus ?? today, min), max);
 
@@ -53,7 +54,7 @@ export const useGridKeys = ({ today, min, max, listRef, onToggle, onAdd }: Optio
         onToggle(current);
         return;
       }
-      const next = target(e.key, current);
+      const next = target(e.key, current, weekStart);
       if (next === null) return;
       e.preventDefault();
       const clamped = Math.min(Math.max(next, min), max);
@@ -67,7 +68,7 @@ export const useGridKeys = ({ today, min, max, listRef, onToggle, onAdd }: Optio
       el?.focus({ preventScroll: true });
       el?.scrollIntoView({ block: 'nearest' });
     },
-    [current, min, max, listRef, onToggle, onAdd],
+    [current, weekStart, min, max, listRef, onToggle, onAdd],
   );
 
   const onFocus = useCallback((e: { target: EventTarget }) => {

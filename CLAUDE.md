@@ -36,6 +36,7 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 | `./run`                      | shell in the Node container; `docker compose down -v` resets `node_modules` |
 | deploy                       | automatic: CI `deploy` job on push to `master` → `actions/deploy-pages`     |
 | `?range=180&max=90&repeat=4` | URL params: window length, allowed days, how many windows ahead to render   |
+| `?week=1`                    | first day of the week (0 = Sun … 6 = Sat); default from the locale          |
 
 ## Code map
 
@@ -46,12 +47,12 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 - `src/state/selection.ts` — external store (`useSyncExternalStore`) of selected `Ord`s, persisted as sorted ISO strings under `schengen/v2/days`; `migrate()` reads the legacy `schengen/selectedDates`. Syncs across tabs. **Any storage-shape change needs a new versioned key + migration + test.**
 - `src/state/useSharedLink.ts` — on load, a `#t=` hash asks to add those days, then strips the hash.
 - `src/state/storage.ts` — guarded localStorage JSON helpers. `src/state/useToday.ts` — today that rolls over at local midnight.
-- `src/settings.ts` — validated URL params → `{ window, max, windowsAhead }`.
+- `src/settings.ts` — validated URL params → `{ window, max, windowsAhead, weekStart }`; `weekStart` (JS weekday, 0 = Sun) defaults to the locale's first day (`localeWeekStart` in `format.ts`), `?week=` overrides.
 - `src/App.tsx` — wires today + selection → `analyze` → `Summary` + `Calendar`; prunes days older than the window.
 - `src/state/useDragSelect.ts` — pointer-event drag select: mouse drags at once (pointer capture), touch needs a 300 ms long-press (else the list scrolls), Shift+click extends from the last day, Esc cancels, auto-scroll near the edges. The preview set feeds `analyze` live; one store write per gesture. `applyRange` is the pure part.
 - `src/state/useGridKeys.ts` — keyboard grid: roving `tabIndex` (today by default), arrows ±1/±7, Home/End week edges, PageUp/PageDown month (clamped to month end), Space/Enter toggle, Shift+arrows add the range; clamped to `[firstRelevant, to]`.
 - Undo/redo live in the selection store (`undo`, `redo`, `useHistory`); Ctrl/Cmd+Z, Ctrl+Shift+Z / Ctrl+Y.
-- `src/Calendar.tsx` — Monday-first grid, weekday header, month labels, memoized `Day` cells with `data-ord`; small number = `stayFrom` for unselected future days; `title`/`aria-label` also say days used in the window; `Day-Over` red, `Day-Blocked` dimmed (still clickable: warn, don't block).
+- `src/Calendar.tsx` — grid starting on `weekStart`, weekday header, month labels, memoized `Day` cells with `data-ord`; small number = `stayFrom` for unselected future days; `title`/`aria-label` also say days used in the window; `Day-Over` red, `Day-Blocked` dimmed (still clickable: warn, don't block).
 - `src/Summary.tsx` — used/left today, stay-until or earliest entry, planned days, overstay alert, the Import / export panel (`src/DataTools.tsx`: paste trips, clear all, JSON export/import, copy share link). Shown on mobile as a compact header.
 - `src/Planner.tsx` — "Plan a trip": stay length when entering on a date, earliest entry for N days.
 - `src/TripList.tsx` — collapsible list of trips derived from the selection; edit (date inputs, entry ≥ first relevant day) or delete via `store.replaceRange` (undoable).
@@ -66,6 +67,8 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 - The rule: on any day, the days spent in the window `[day − 179, day]` must be ≤ 90 (entry and exit days count). Defaults come from `settings.ts`; never hardcode 90/180 elsewhere.
 - Dates are local calendar days. Never parse `YYYY-MM-DD` with `new Date(str)` (that is UTC midnight → off-by-one west of UTC).
 - TypeScript `strict` + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` + `verbatimModuleSyntax` + `erasableSyntaxOnly` (no enums/namespaces/parameter properties). Tests run with `TZ=America/Los_Angeles` to catch UTC-parsing bugs.
+- Colors are CSS custom properties in `src/index.css` with a `prefers-color-scheme: dark` set; never hardcode colors in component CSS.
+- `renderApp(store?, search = '?week=1')` pins Monday-first so tests don't depend on the runner's locale.
 - Vite `base: './'` so the build works under `yfix.github.io/schengen/`.
 - Branch per PR from `master`; never commit to `master`. PR description: what changed + how it was checked.
 - **Keep the docs current, inside the same PR:** update the State section of `docs/PROGRESS.md` and the code map above when the picture changes; tick items in `docs/plans/` when built. A design doc written in chat gets saved as `docs/plans/YYYY-MM-DD-<topic>.md` in the next PR.

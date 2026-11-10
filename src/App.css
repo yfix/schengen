@@ -23,7 +23,7 @@
     flex: none;
     font-size: 2.5em;
     padding: 8px 12px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--line);
   }
 
   .App > .Calendar {

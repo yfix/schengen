@@ -11,10 +11,10 @@
   display: flex;
   width: 366px;
   box-sizing: border-box;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
   font-size: 75%;
-  color: #666;
+  color: var(--muted);
 }
 
 .Weekday {
@@ -31,8 +31,8 @@
   box-sizing: border-box;
   width: 366px;
   min-height: 100%;
-  border-left: 1px solid #333;
-  border-right: 1px solid #333;
+  border-left: 1px solid var(--frame);
+  border-right: 1px solid var(--frame);
   padding: 10px 0 30px;
 }
 
@@ -50,15 +50,15 @@
 }
 
 .Day-Odd {
-  color: darkblue;
+  color: var(--month-odd);
 }
 
 .Day-Even {
-  color: green;
+  color: var(--month-even);
 }
 
 .Day-Selected {
-  background: pink;
+  background: var(--selected);
 }
 
 .Day-Blocked {
@@ -66,12 +66,12 @@
 }
 
 .Day-Over {
-  background: #e53935;
-  color: #fff;
+  background: var(--over);
+  color: var(--over-text);
 }
 
 .Day-InRange {
-  box-shadow: inset 0 0 0 2px #1e88e5;
+  box-shadow: inset 0 0 0 2px var(--range);
 }
 
 .Calendar-Dragging .Day {
@@ -84,16 +84,16 @@
 }
 
 .Day-Today {
-  color: red;
+  color: var(--today);
   font-weight: 700;
 }
 
 .Day-Over.Day-Today {
-  color: #fff;
+  color: var(--over-text);
 }
 
 .Day:not(.Day-Disabled):not(.Day-Empty):hover {
-  outline: 1px solid red;
+  outline: 1px solid var(--today);
 }
 
 .Day_Available {
@@ -115,11 +115,11 @@
   transform-origin: 100% 0%;
   margin-top: -10px;
   margin-right: 1.7em;
-  color: crimson;
+  color: var(--month-label);
 }
 
 .Day:focus-visible {
-  outline: 3px solid #1565c0;
+  outline: 3px solid var(--focus);
   outline-offset: -3px;
 }
 
