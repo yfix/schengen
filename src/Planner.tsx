@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { parseIso, toIso, type Ord } from './engine/dates';
 import { earliestEntry, type Analysis, type Rules } from './engine/schengen';
-import { formatDay, plural } from './format';
+import { useI18n } from './i18n';
 
 type PlannerProps = { today: Ord; rules: Rules; analysis: Analysis };
 
 const Planner = ({ today, rules, analysis }: PlannerProps) => {
+  const { t, fmt } = useI18n();
   const [entryIso, setEntryIso] = useState(toIso(today));
   const [length, setLength] = useState('14');
   const entry = parseIso(entryIso);
@@ -17,9 +18,9 @@ const Planner = ({ today, rules, analysis }: PlannerProps) => {
 
   return (
     <details className="Summary-Tools Planner">
-      <summary>Plan a trip</summary>
+      <summary>{t.plan}</summary>
       <label>
-        Enter on{' '}
+        {t.enterOn}{' '}
         <input
           type="date"
           value={entryIso}
@@ -30,13 +31,13 @@ const Planner = ({ today, rules, analysis }: PlannerProps) => {
       </label>
       <p className="Summary-Message" aria-live="polite">
         {!inRange
-          ? `Pick a date from ${formatDay(today)} to ${formatDay(analysis.to)}`
+          ? t.pickRange(fmt.day(today), fmt.day(analysis.to))
           : stay > 0
-            ? `Stay up to ${plural(stay, 'day')}, leave by ${formatDay(entry + stay - 1)}`
-            : 'No days left on that date'}
+            ? t.stayUpTo(stay, fmt.day(entry + stay - 1))
+            : t.noDaysOnDate}
       </p>
       <label>
-        Earliest entry for{' '}
+        {t.earliestFor}{' '}
         <input
           type="number"
           inputMode="numeric"
@@ -44,16 +45,16 @@ const Planner = ({ today, rules, analysis }: PlannerProps) => {
           max={rules.max}
           value={length}
           onChange={(e) => setLength(e.target.value)}
-          aria-label="Trip length in days"
+          aria-label={t.tripLength}
         />{' '}
-        days
+        {t.daysUnit}
       </label>
       <p className="Summary-Message" aria-live="polite">
         {!validLength
-          ? `Enter 1 to ${String(rules.max)} days`
+          ? t.enterRange(rules.max)
           : first === null
-            ? `Not possible before ${formatDay(analysis.to)}`
-            : `${formatDay(first)}, leave by ${formatDay(first + days - 1)}`}
+            ? t.notPossibleBefore(fmt.day(analysis.to))
+            : t.firstLeave(fmt.day(first), fmt.day(first + days - 1))}
       </p>
     </details>
   );

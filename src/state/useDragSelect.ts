@@ -113,7 +113,14 @@ export const useDragSelect = ({ selected, min, max, onCommit, longPressMs = 300 
   const onPointerMove = (e: PointerEvent<HTMLElement>) => {
     const p = pending.current;
     if (p) {
-      if (Math.hypot(e.clientX - p.x, e.clientY - p.y) > MOVE_TOLERANCE) clearPending();
+      const dx = Math.abs(e.clientX - p.x);
+      const dy = Math.abs(e.clientY - p.y);
+      if (Math.hypot(dx, dy) <= MOVE_TOLERANCE) return;
+      clearPending();
+      if (dx <= dy) return;
+      const ord = ordAt(e.clientX, e.clientY, e.target);
+      pointer.current = { x: e.clientX, y: e.clientY };
+      update({ anchor: p.anchor, current: clamp(ord ?? p.anchor), mode: p.mode });
       return;
     }
     const d = dragRef.current;

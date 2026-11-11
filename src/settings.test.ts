@@ -26,11 +26,11 @@ describe('settings (B9)', () => {
     expect(parseSettings('?range=5000').window).toBe(730);
   });
 
-  it('takes the week start from the locale or ?week=', () => {
-    expect(parseSettings('', 'en-US').weekStart).toBe(0);
-    expect(parseSettings('', 'de-DE').weekStart).toBe(1);
-    expect(parseSettings('?week=1', 'en-US').weekStart).toBe(1);
-    expect(parseSettings('?week=9', 'en-US').weekStart).toBe(6);
+  it('reads ?week= or leaves the week start unset', () => {
+    expect(parseSettings('').weekStart).toBeNull();
+    expect(parseSettings('?week=abc').weekStart).toBeNull();
+    expect(parseSettings('?week=0').weekStart).toBe(0);
+    expect(parseSettings('?week=9').weekStart).toBe(6);
   });
 
   it('falls back on non-integer values', () => {

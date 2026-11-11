@@ -178,3 +178,53 @@
 .Planner input[type='number'] {
   width: 4em;
 }
+
+.Prefs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6em;
+  font-size: 14%;
+  margin-bottom: 0.6em;
+}
+
+.Prefs-Group {
+  display: inline-flex;
+  border: 1px solid var(--control-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.Prefs-Group button {
+  font: inherit;
+  min-width: 2.6em;
+  min-height: 2em;
+  padding: 0 0.6em;
+  border: 0;
+  background: var(--control);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.Prefs-Group button + button {
+  border-left: 1px solid var(--control-border);
+}
+
+.Prefs-Group button[aria-pressed='true'] {
+  background: var(--range);
+  color: var(--bg);
+  font-weight: 700;
+}
+
+.Prefs-Group button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+@media (max-width: 640px) {
+  .Prefs {
+    width: 100%;
+    font-size: 30%;
+    margin-bottom: 0.3em;
+  }
+}
