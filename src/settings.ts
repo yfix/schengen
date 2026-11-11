@@ -1,7 +1,6 @@
 import type { Rules } from './engine/schengen';
-import { localeWeekStart } from './format';
 
-export type Settings = Rules & { windowsAhead: number; weekStart: number };
+export type Settings = Rules & { windowsAhead: number; weekStart: number | null };
 
 const intParam = (
   params: URLSearchParams,
@@ -15,12 +14,13 @@ const intParam = (
   return Number.isInteger(n) ? Math.min(Math.max(n, min), max) : fallback;
 };
 
-export const parseSettings = (search: string, locale?: string): Settings => {
+export const parseSettings = (search: string): Settings => {
   const params = new URLSearchParams(search);
   const window = intParam(params, 'range', 180, 2, 730);
   const max = intParam(params, 'max', Math.floor(window / 2), 1, window - 1);
   const windowsAhead = intParam(params, 'repeat', 4, 1, 10);
-  const weekStart = intParam(params, 'week', localeWeekStart(locale), 0, 6);
+  const week = intParam(params, 'week', -1, 0, 6);
+  const weekStart = week >= 0 ? week : null;
   return { window, max, windowsAhead, weekStart };
 };
 

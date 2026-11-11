@@ -2,9 +2,11 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { localToday } from './engine/dates';
-import { formatDay } from './format';
+import { I18N } from './i18n';
 import { createSelectionStore } from './state/selection';
 import { renderApp } from './test/renderApp';
+
+const formatDay = I18N.en.fmt.day;
 
 const t = localToday();
 const span = (start: number, length: number) => Array.from({ length }, (_, i) => start + i);

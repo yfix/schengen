@@ -103,6 +103,22 @@ describe('drag select', () => {
     }
   });
 
+  it('touch: a sideways swipe starts a drag at once, a vertical one scrolls', () => {
+    const { store, cell } = setup();
+    const touch = { pointerType: 'touch', button: 0, pointerId: 4 };
+    fireEvent.pointerDown(cell(t + 20), { ...touch, clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(cell(t + 21), { ...touch, clientX: 30, clientY: 4 });
+    fireEvent.pointerMove(cell(t + 22), { ...touch, clientX: 60, clientY: 4 });
+    fireEvent.pointerUp(cell(t + 22), touch);
+    expect(sorted(store.get())).toEqual([t + 20, t + 21, t + 22]);
+
+    fireEvent.pointerDown(cell(t + 30), { ...touch, clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(cell(t + 37), { ...touch, clientX: 2, clientY: 40 });
+    fireEvent.pointerUp(cell(t + 37), touch);
+    expect(store.get().has(t + 30)).toBe(false);
+    expect(store.get().has(t + 37)).toBe(false);
+  });
+
   it('undo and redo a drag', async () => {
     const { store, cell } = setup();
     await userEvent.pointer([

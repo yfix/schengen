@@ -10,7 +10,7 @@ import './Calendar.css';
 import { fromOrd, type Ord } from './engine/dates';
 import type { Analysis } from './engine/schengen';
 import type { DragRange } from './state/useDragSelect';
-import { formatDay, formatMonth, weekdayNames } from './format';
+import { useI18n, type I18n } from './i18n';
 
 type DayState = {
   ord: Ord;
@@ -51,18 +51,19 @@ type CalendarProps = {
   };
 };
 
-const label = (s: DayState) => {
-  const parts = [formatDay(s.ord)];
-  if (s.today) parts.push('today');
-  if (s.selected) parts.push('in Schengen');
-  if (s.over) parts.push('overstay');
-  if (s.used !== null) parts.push(`${s.used} of ${s.max} days used in the window`);
-  if (s.stay !== null)
-    parts.push(s.stay > 0 ? `entering here allows ${s.stay} days` : 'no days left');
+const label = (s: DayState, { t, fmt }: I18n) => {
+  const parts = [fmt.day(s.ord)];
+  if (s.today) parts.push(t.today);
+  if (s.selected) parts.push(t.inSchengen);
+  if (s.over) parts.push(t.overstay);
+  if (s.used !== null) parts.push(t.usedInWindow(s.used, s.max));
+  if (s.stay !== null) parts.push(s.stay > 0 ? t.entryAllows(s.stay) : t.noDaysLeft);
   return parts.join(', ');
 };
 
 const Day = memo(function Day(state: DayState) {
+  const i18n = useI18n();
+  const text = label(state, i18n);
   const { date, month } = fromOrd(state.ord);
   const classes = ['Day', month % 2 ? 'Day-Odd' : 'Day-Even'];
   if (state.inactive) classes.push('Day-Disabled');
@@ -76,8 +77,8 @@ const Day = memo(function Day(state: DayState) {
       role="button"
       aria-pressed={state.selected}
       aria-disabled={state.inactive || undefined}
-      aria-label={label(state)}
-      title={label(state)}
+      aria-label={text}
+      title={text}
       data-ord={state.ord}
       tabIndex={state.focusable ? 0 : -1}
       className={classes.join(' ')}
@@ -103,6 +104,7 @@ const Calendar = ({
   keys,
   weekStart,
 }: CalendarProps) => {
+  const { t, fmt } = useI18n();
   useEffect(() => {
     listRef.current?.querySelector('.Day-Today')?.scrollIntoView({ block: 'center' });
   }, [listRef]);
@@ -127,7 +129,7 @@ const Calendar = ({
     if (fromOrd(ord).date === 1)
       cells.push(
         <div key={`m-${ord}`} className="Month" aria-hidden="true">
-          {formatMonth(ord)}
+          {fmt.month(ord)}
         </div>,
       );
     cells.push(<Day key={ord} {...state} />);
@@ -136,7 +138,7 @@ const Calendar = ({
   return (
     <div className="Calendar">
       <div className="Calendar-Weekdays" aria-hidden="true">
-        {weekdayNames(weekStart).map((name) => (
+        {fmt.weekdays(weekStart).map((name) => (
           <div key={name} className="Weekday">
             {name}
           </div>
@@ -146,7 +148,7 @@ const Calendar = ({
         ref={listRef}
         className={range ? 'Calendar-List Calendar-Dragging' : 'Calendar-List'}
         role="group"
-        aria-label="Calendar"
+        aria-label={t.calendar}
         aria-describedby="Calendar-Keys"
         {...handlers}
         {...keys}
@@ -154,7 +156,7 @@ const Calendar = ({
         {cells}
       </div>
       <p id="Calendar-Keys" className="Calendar-Hint">
-        Arrows move, Space marks, Shift+arrows mark a range, PageUp/PageDown change month.
+        {t.keysHint}
       </p>
     </div>
   );

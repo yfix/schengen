@@ -4,7 +4,7 @@ import { toIcs } from './engine/ics';
 import { parseRanges } from './engine/ranges';
 import type { Rules } from './engine/schengen';
 import { parseExport, shareUrl, toExport } from './engine/share';
-import { plural } from './format';
+import { useI18n } from './i18n';
 import type { SelectionStore } from './state/selection';
 
 type DataToolsProps = { store: SelectionStore; selected: ReadonlySet<Ord>; rules: Rules };
@@ -19,6 +19,7 @@ const download = (name: string, text: string, type: string) => {
 };
 
 const DataTools = ({ store, selected, rules }: DataToolsProps) => {
+  const { t } = useI18n();
   const [text, setText] = useState('');
   const [message, setMessage] = useState('');
   const [link, setLink] = useState('');
@@ -26,12 +27,12 @@ const DataTools = ({ store, selected, rules }: DataToolsProps) => {
   const submit = () => {
     const { days, errors } = parseRanges(text);
     if (errors.length) {
-      setMessage(`Can't read line ${errors.join(', ')} (use YYYY-MM-DD YYYY-MM-DD)`);
+      setMessage(t.cantReadLines(errors.join(', ')));
       return;
     }
     store.add(days);
     setText('');
-    setMessage(`Added ${plural(days.length, 'day')}`);
+    setMessage(t.added(days.length));
   };
 
   const exportJson = () => {
@@ -40,12 +41,12 @@ const DataTools = ({ store, selected, rules }: DataToolsProps) => {
       `${JSON.stringify(toExport(selected, rules), null, 2)}\n`,
       'application/json',
     );
-    setMessage(`Exported ${plural(selected.size, 'day')}`);
+    setMessage(t.exported(selected.size));
   };
 
   const exportIcs = () => {
     download(`schengen-${toIso(localToday())}.ics`, toIcs(selected), 'text/calendar');
-    setMessage('Exported calendar');
+    setMessage(t.exportedCalendar);
   };
 
   const importJson = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -54,11 +55,11 @@ const DataTools = ({ store, selected, rules }: DataToolsProps) => {
     if (!file) return;
     const days = parseExport(await file.text());
     if (days === null) {
-      setMessage(`Can't read ${file.name}: not a Schengen export`);
+      setMessage(t.notExport(file.name));
       return;
     }
     store.add(days);
-    setMessage(`Added ${plural(days.length, 'day')} from ${file.name}`);
+    setMessage(t.addedFrom(days.length, file.name));
   };
 
   const share = async () => {
@@ -66,17 +67,17 @@ const DataTools = ({ store, selected, rules }: DataToolsProps) => {
     setLink(url);
     try {
       await navigator.clipboard.writeText(url);
-      setMessage('Link copied');
+      setMessage(t.linkCopied);
     } catch {
-      setMessage('Copy the link below');
+      setMessage(t.copyBelow);
     }
   };
 
   return (
     <details className="Summary-Tools">
-      <summary>Import / export</summary>
+      <summary>{t.tools}</summary>
       <textarea
-        aria-label="Trips, one per line"
+        aria-label={t.tripsInput}
         placeholder={'2026-07-21 2026-08-02\n2026-10-04'}
         rows={4}
         value={text}
@@ -84,34 +85,31 @@ const DataTools = ({ store, selected, rules }: DataToolsProps) => {
       />
       <div className="Summary-Actions">
         <button type="button" onClick={submit} disabled={!text.trim()}>
-          Add
+          {t.add}
         </button>
-        <button
-          type="button"
-          onClick={() => window.confirm('Remove all marked days?') && store.clear()}
-        >
-          Clear all
+        <button type="button" onClick={() => window.confirm(t.confirmClear) && store.clear()}>
+          {t.clearAll}
         </button>
       </div>
       <div className="Summary-Actions">
         <button type="button" onClick={exportJson} disabled={!selected.size}>
-          Export JSON
+          {t.exportJson}
         </button>
         <button type="button" onClick={exportIcs} disabled={!selected.size}>
-          Export .ics
+          {t.exportIcs}
         </button>
         <label className="Summary-File">
-          Import JSON
+          {t.importJson}
           <input type="file" accept="application/json,.json" onChange={(e) => void importJson(e)} />
         </label>
         <button type="button" onClick={() => void share()} disabled={!selected.size}>
-          Share link
+          {t.shareLink}
         </button>
       </div>
       {link ? (
         <input
           className="Summary-Link"
-          aria-label="Share link"
+          aria-label={t.shareLink}
           readOnly
           value={link}
           onFocus={(e) => e.target.select()}

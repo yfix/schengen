@@ -28,15 +28,15 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 
 ## Commands
 
-| Command                      | What                                                                        |
-| ---------------------------- | --------------------------------------------------------------------------- |
-| `./run npm run dev`          | Vite dev server on :5173 (in Docker)                                        |
-| `./run npm run check`        | test + typecheck + lint + build + smoke                                     |
-| `./run npm run test:watch`   | Vitest watch mode                                                           |
-| `./run`                      | shell in the Node container; `docker compose down -v` resets `node_modules` |
-| deploy                       | automatic: CI `deploy` job on push to `master` → `actions/deploy-pages`     |
-| `?range=180&max=90&repeat=4` | URL params: window length, allowed days, how many windows ahead to render   |
-| `?week=1`                    | first day of the week (0 = Sun … 6 = Sat); default from the locale          |
+| Command                      | What                                                                         |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| `./run npm run dev`          | Vite dev server on :5173 (in Docker)                                         |
+| `./run npm run check`        | test + typecheck + lint + build + smoke                                      |
+| `./run npm run test:watch`   | Vitest watch mode                                                            |
+| `./run`                      | shell in the Node container; `docker compose down -v` resets `node_modules`  |
+| deploy                       | automatic: CI `deploy` job on push to `master` → `actions/deploy-pages`      |
+| `?range=180&max=90&repeat=4` | URL params: window length, allowed days, how many windows ahead to render    |
+| `?week=1`                    | first day of the week (0 = Sun … 6 = Sat) until the user picks one; else Mon |
 
 ## Code map
 
@@ -48,9 +48,12 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 - `src/state/selection.ts` — external store (`useSyncExternalStore`) of selected `Ord`s, persisted as sorted ISO strings under `schengen/v2/days`; `migrate()` reads the legacy `schengen/selectedDates`. Syncs across tabs. **Any storage-shape change needs a new versioned key + migration + test.**
 - `src/state/useSharedLink.ts` — on load, a `#t=` hash asks to add those days, then strips the hash.
 - `src/state/storage.ts` — guarded localStorage JSON helpers. `src/state/useToday.ts` — today that rolls over at local midnight.
-- `src/settings.ts` — validated URL params → `{ window, max, windowsAhead, weekStart }`; `weekStart` (JS weekday, 0 = Sun) defaults to the locale's first day (`localeWeekStart` in `format.ts`), `?week=` overrides.
+- `src/settings.ts` — validated URL params → `{ window, max, windowsAhead, weekStart }`; `weekStart` (JS weekday, 0 = Sun) is `?week=` or `null`. Effective week start in `App`: stored pref ?? `?week=` ?? Monday.
+- `src/state/prefs.ts` — user prefs store `{ lang: 'uk' | 'en', theme: 'auto' | 'light' | 'dark', weekStart }` under `schengen/v1/prefs` (default Ukrainian, auto, Monday), syncs across tabs; `applyTheme` sets `<html data-theme>` + theme-color meta (also called in `main.tsx` before render).
+- `src/i18n.ts` — `I18N[lang]` = `{ t, fmt, days }`: message dictionaries (`en` defines the shape, `uk` must match; test checks keys), `Intl.PluralRules` day counts, `fmt` from `createFormat(locale)` in `format.ts` (uk-UA / en-GB). Components read it via `useI18n()`; `App` provides `I18nContext`. **Every new UI string goes into both dictionaries.**
+- `src/Prefs.tsx` — toolbar on top of the summary: language УКР/EN, week Пн/Нд, theme Auto/☀/☾ (segmented `aria-pressed` buttons).
 - `src/App.tsx` — wires today + selection → `analyze` → `Summary` + `Calendar`; prunes days older than the window.
-- `src/state/useDragSelect.ts` — pointer-event drag select: mouse drags at once (pointer capture), touch needs a 300 ms long-press (else the list scrolls), Shift+click extends from the last day, Esc cancels, auto-scroll near the edges. The preview set feeds `analyze` live; one store write per gesture. `applyRange` is the pure part.
+- `src/state/useDragSelect.ts` — pointer-event drag select: mouse drags at once (pointer capture), touch: a tap toggles, a sideways swipe starts a drag at once (`touch-action: pan-y` lets vertical swipes scroll), or a 300 ms long-press, Shift+click extends from the last day, Esc cancels, auto-scroll near the edges. The preview set feeds `analyze` live; one store write per gesture. `applyRange` is the pure part.
 - `src/state/useGridKeys.ts` — keyboard grid: roving `tabIndex` (today by default), arrows ±1/±7, Home/End week edges, PageUp/PageDown month (clamped to month end), Space/Enter toggle, Shift+arrows add the range; clamped to `[firstRelevant, to]`.
 - Undo/redo live in the selection store (`undo`, `redo`, `useHistory`); Ctrl/Cmd+Z, Ctrl+Shift+Z / Ctrl+Y.
 - `src/Calendar.tsx` — grid starting on `weekStart`, weekday header, month labels, memoized `Day` cells with `data-ord`; small number = `stayFrom` for unselected future days; `title`/`aria-label` also say days used in the window; `Day-Over` red, `Day-Blocked` dimmed (still clickable: warn, don't block).
@@ -70,8 +73,8 @@ Run commands as `./run <cmd>` (Docker, e.g. `./run npm test`) when `docker` is a
 - The rule: on any day, the days spent in the window `[day − 179, day]` must be ≤ 90 (entry and exit days count). Defaults come from `settings.ts`; never hardcode 90/180 elsewhere.
 - Dates are local calendar days. Never parse `YYYY-MM-DD` with `new Date(str)` (that is UTC midnight → off-by-one west of UTC).
 - TypeScript `strict` + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` + `verbatimModuleSyntax` + `erasableSyntaxOnly` (no enums/namespaces/parameter properties). Tests run with `TZ=America/Los_Angeles` to catch UTC-parsing bugs.
-- Colors are CSS custom properties in `src/index.css` with a `prefers-color-scheme: dark` set; never hardcode colors in component CSS.
-- `renderApp(store?, search = '?week=1')` pins Monday-first so tests don't depend on the runner's locale.
+- Colors are CSS custom properties in `src/index.css`: dark set under `prefers-color-scheme: dark` (unless `data-theme='light'`) and repeated for `[data-theme='dark']` — change both; never hardcode colors in component CSS.
+- `renderApp(store?, search = '?week=1', prefs = English, non-persisting)` keeps tests in English; pass `createPrefsStore({}, false)` to test the Ukrainian default.
 - Vite `base: './'` so the build works under `yfix.github.io/schengen/`.
 - Branch per PR from `master`; never commit to `master`. PR description: what changed + how it was checked.
 - **Keep the docs current, inside the same PR:** update the State section of `docs/PROGRESS.md` and the code map above when the picture changes; tick items in `docs/plans/` when built. A design doc written in chat gets saved as `docs/plans/YYYY-MM-DD-<topic>.md` in the next PR.
